@@ -1,74 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="150mm"
-   height="50mm"
-   viewBox="0 0 150 50"
-   version="1.1"
-   id="svg1"
-   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
-   sodipodi:docname="nosr.svg"
-   inkscape:export-xdpi="150"
-   inkscape:export-ydpi="150"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="true"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="mm"
-     showguides="true"
-     showgrid="true"
-     inkscape:zoom="2.1220118"
-     inkscape:cx="283.69305"
-     inkscape:cy="69.038258"
-     inkscape:window-width="2560"
-     inkscape:window-height="1387"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
-     labelstyle="default"
-     inkscape:export-bgcolor="#ffffffff" />
-  <defs
-     id="defs1" />
+  width="150mm"
+  height="50mm"
+  viewBox="0 0 150 50"
+  version="1.1"
+  id="nosr-logo"
+  inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+  inkscape:export-xdpi="150"
+  inkscape:export-ydpi="150"
+  xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:svg="http://www.w3.org/2000/svg">
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     style="display:inline;opacity:1">
+    inkscape:label="Layer 1"
+    inkscape:groupmode="layer"
+    id="layer1"
+    style="display:inline;opacity:1">
     <g
-       id="g1"
-       transform="translate(5.9818259,6.6611995)">
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:50.8px;line-height:1.25;font-family:'Red Hat Display';-inkscape-font-specification:'Red Hat Display, Medium';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0.529167px;word-spacing:0px;stroke-width:0.264583"
-         x="-138.89995"
-         y="-0.55879998"
-         id="text6"
-         transform="scale(-1)"><tspan
-           sodipodi:role="line"
-           id="tspan2"
-           x="-138.89995"
-           y="-0.55879998">J</tspan></text>
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:50.8px;line-height:1.25;font-family:'Red Hat Display';-inkscape-font-specification:'Red Hat Display, Medium';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0.529167px;word-spacing:0px;display:inline;stroke-width:0.264583"
-         x="-3.6067998"
-         y="36.118801"
-         id="text6-0"><tspan
-           sodipodi:role="line"
-           id="tspan1"
-           x="-3.6067998"
-           y="36.118801">NOS</tspan></text>
+      id="g1"
+      transform="translate(5.9818259,6.6611995)"
+      aria-label="NOSR">
+      <path
+        d="M 1.0490418e-7,36.118801 V 0.55880165 H 5.1816 L 25.0444,26.974801 V 0.55880165 h 5.0292 V 36.118801 H 25.4 L 5.08,8.8900015 V 36.118801 Z M 54.834399,36.677601 q -3.8608,0 -7.2136,-1.3716 -3.3528,-1.4224 -5.9436,-3.9116 -2.54,-2.54 -3.9624,-5.842 -1.3716,-3.3528 -1.3716,-7.2136 0,-3.8608 1.3716,-7.1628 1.4224,-3.3527995 3.9624,-5.8419994 2.5908,-2.54 5.9436,-3.9116 3.3528,-1.4223999406067 7.2136,-1.4223999406067 3.8608,0 7.2136,1.4223999406067 3.4036,1.3716 5.9436,3.9116 2.54,2.4891999 3.9624,5.8419994 1.4224,3.302 1.4224,7.1628 0,3.8608 -1.4224,7.2136 -1.4224,3.302 -3.9624,5.842 -2.54,2.4892 -5.9436,3.9116 -3.3528,1.3716 -7.2136,1.3716 z m 0.0508,-4.9276 q 2.7432,0 5.08,-1.016 2.3876,-1.016 4.1656,-2.794 1.778,-1.8288 2.794,-4.2672 1.016,-2.4892 1.016,-5.334 0,-2.8956 -1.016,-5.334 -1.016,-2.438399 -2.794,-4.2163995 -1.778,-1.8287999 -4.1656,-2.8447999 -2.3368,-1.016 -5.08,-1.016 -2.794,0 -5.1816,1.016 -2.3876,1.016 -4.1656,2.8447999 -1.778,1.7780005 -2.794,4.2163995 -0.9652,2.4384 -0.9652,5.2832 0,2.8956 0.9652,5.3848 1.016,2.4384 2.794,4.2672 1.778,1.778 4.1656,2.794 2.3876,1.016 5.1816,1.016 z m 36.698735,4.8768 q -4.2672,0 -8.2296,-1.6764 -3.962399,-1.6764 -7.010399,-4.7244 l 3.2512,-3.7592 q 2.895599,2.8448 5.892799,4.2164 3.048,1.3716 6.35,1.3716 2.5908,0 4.5212,-0.7112 1.9812,-0.762 3.048,-2.1336 1.066796,-1.3716 1.066796,-3.0988 0,-2.3876 -1.676396,-3.6576 -1.6764,-1.27 -5.5372,-1.9304 l -5.9436,-0.9652 q -4.8768,-0.8636 -7.315199,-3.1496 -2.3876,-2.286 -2.3876,-6.095999 0,-3.0480004 1.6256,-5.3340004 1.625599,-2.3368 4.571999,-3.6068 2.9972,-1.26999994 6.9088,-1.26999994 3.8608,0 7.5692,1.26999994 3.759196,1.2192 6.756396,3.556 l -2.9464,4.0639999 Q 96.359134,4.6228016 90.466334,4.6228016 q -2.3368,0 -4.064,0.6604 -1.7272,0.6604 -2.6924,1.8796 -0.9652,1.1683999 -0.9652,2.7431999 0,2.1843995 1.4732,3.3527995 1.4732,1.1176 4.8768,1.6256 l 5.7404,0.9652 q 5.638796,0.9144 8.280396,3.302 2.6416,2.3876 2.6416,6.5532 0,3.2512 -1.778,5.7404 -1.778,2.4384 -4.978396,3.81 -3.2004,1.3716 -7.4168,1.3716 z"
+        id="NOS"
+      />
+      <path
+        d="m -124.52355,0 q -4.9276,0 -8.4328,-2.4892 -3.5052,-2.5399999 -5.08,-7.1627998 l 4.8768,-1.9304002 q 1.27,3.4036001 3.4036,5.0800001 2.1844,1.6256 5.2324,1.6256 3.9624,0 6.2992,-2.54 2.3876,-2.5399999 2.3876,-6.8072001 v -21.894799 h 5.334 V -14.1224 q 0,4.2672002 -1.7272,7.4676001 -1.7272,3.1496 -4.8768,4.9275999 Q -120.25635,0 -124.52355,0 Z"
+        id="R"
+        transform="scale(-1)"
+      />
     </g>
   </g>
 </svg>
