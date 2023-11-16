@@ -11,12 +11,12 @@ floats your boat.
 
 In order to represent structured data, such as configuration files, developers
 often reach for formats such as [JSON](https://www.json.org/json-en.html). JSON,
-however flexible it is, doesn't complete solve every imaginable use case. Some
+as flexible it is, doesn't completely solve every imaginable use case. Some
 people really want extended types. Others want functions and metaprogramming
 support. Clearly JSON just isn't good enough.
 
 Well, if you're one of those people, **nosr** probably won't help you, because
-has fewer types than JSON, and it definitely doesn't give you any fancy
+it has fewer types than JSON, and it definitely doesn't give you any fancy
 functions or metaprogramming support. But it gives you access to a dead-simple
 tree structure that you, the programmer, get to interpret all on your own. Don't
 expect any special formatting out of **nosr** except a tree.
@@ -24,11 +24,12 @@ expect any special formatting out of **nosr** except a tree.
 But wait! There's more! The "parsing" bits are actually encoded into the API!
 Sometimes you really absolutely need a 64-bit unsigned integer instead of a
 goofy 53-bit signed integer (apparently some JSON parsers just use `double` to
-represent numbers). Or maybe you need a rational, because `1/3` is much more
-precise than `0.333`. Well, you *could* add more types to the format ... or you
-could just admit that parsing things into pre-baked categories is either really
-silly, or requires [way more math](https://en.wikipedia.org/wiki/Dependent_type)
-than most people are willing to stomach. Hence: **nosr**.
+represent numbers ... yikes). Or maybe you need a rational, because `1/3` is
+much more precise than `0.333`. Well, you *could* add more types to the format
+... or you could just admit that parsing things into pre-baked categories is
+either really silly, or requires [way more
+math](https://en.wikipedia.org/wiki/Dependent_type) than most people are willing
+to stomach. Hence: **nosr**.
 
 Good luck. Have fun. May the odds be ever in your favor.
 
