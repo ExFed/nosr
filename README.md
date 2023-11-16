@@ -21,7 +21,7 @@ functions or metaprogramming support. But it gives you access to a dead-simple
 tree structure that you, the programmer, get to interpret all on your own. Don't
 expect any special formatting out of **nosr** except a tree.
 
-But wait! There's more! The "parsing" bits are actually encoded into the API!
+But wait! There's more! The "parsing" bits are actually built into the API!
 Sometimes you really absolutely need a 64-bit unsigned integer instead of a
 goofy 53-bit signed integer (apparently some JSON parsers just use `double` to
 represent numbers ... yikes). Or maybe you need a rational, because `1/3` is
@@ -78,10 +78,9 @@ newline literal, `\"` is a double-quote literal, and `\:` is a colon literal.
 **Scalars** are any other string of characters which are bounded by
 non-whitespace characters.
 
-Let's also define syntax for comments, because unlike
-[Douglas
+Let's also define syntax for comments. Unlike [Douglas
 Crockford](https://web.archive.org/web/20190112173904/https://plus.google.com/118095276221607585885/posts/RK8qyGVaGSr),
-I'm not a monster.
+I'm no monster.
 
 **Line Comments** are normal C-style line comments: `//` until the next newline.
 Discarded by the parser.
