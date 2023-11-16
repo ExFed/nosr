@@ -101,21 +101,65 @@ calls. In the event you only need a few values within a document, this should
 reduce the time spent parsing, as it means your program will only parse the
 sections that it absolutely needs, and no more.
 
-Of course, you could just argue **nosr** is just a lexical analyzer with a silly
-name. You'd be mostly right.
+Of course, you could just argue **nosr** is little more than a lexical analyzer
+and a silly name. You'd be mostly right.
 
-Alright, without further ado, let's define a few basic operations with some very
-rough pseudocode:
+#### Operations
 
-* `document(filename: string): nosr_node`
+Let's define a few basic operation signatures/semantics:
+
+* `document(filename: string): result<nosr_node>`
 
   Parses the root node of a document.
 
-* `text(node: nosr_node): string`
+* `tab(node: nosr_node, key: string): result<nosr_node>`
+
+  Parses a node as a table and gets the
+
+* `vec(node: nosr_node, n: int): result<nosr_node>`
+
+  Parses a node as a vector and gets the `n`th node in the vector.
+
+* `text(node: nosr_node): result<string>`
 
   Parses a node as a string literal.
 
-* `uint64(node: nosr_node): uint64`
+* `uint64(node: nosr_node): result<uint64>`
+
+  Parses a node as a 64-bit integer.
+
+* `double(node: nosr_node): result<double>`
+
+  Parses a node as a double.
+
+* Extensions ... maybe you can see the pattern here. As long as you can take in
+  a `nosr_node` and return a `result`, you can parse anything however you want.
+  Have fun!
+
+#### Types
+
+So what about those nebulous data types? Let's define them:
+
+* `result<T>`
+
+  A result type. Expresses "success" or "error" conditions. Depending upon
+  programming paradigm, may be a monad, a union, an object ... anything that
+  communicates to the programmer whether and where a parse failure occurred.
+
+* `nosr_node`
+
+  A partially-parsed node in the **nosr** tree. Represents a substring of the
+  document (e.g.: source, position, and length).
+
+* `string`
+
+  A character string. Any language-supported data type which is capable of
+  representing a sequence of characters.
+
+* `uint64`
+
+  A 64-bit unsigned integer. Again, this is just a semantic placeholder. Not all
+  languages (\*cough\**Java*\*cough\*) directly support this primitive.
 
 ## Examples
 
@@ -123,13 +167,13 @@ rough pseudocode:
 
 A file can just be a single scalar:
 
-    "hello world!"
+    "hello, world!"
 
 The parser should also support cases like this:
 
     you could also just write a plain-text
     file and call it \"nosr\" so long as it
-    appropriately escapes reserved chars
+    appropriately escapes reserved chars.
 
 ### Comments
 
@@ -142,7 +186,7 @@ The parser should also support cases like this:
 
 Keep calm, use the **nosr** API, and carry on.
 
-    12.34 // what did you expect? convenience?
+    "12.34" // what did you expect? convenience?
 
 ### Vectors
 
