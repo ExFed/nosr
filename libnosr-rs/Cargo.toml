@@ -1,0 +1,19 @@
+[package]
+name = "libnosr-rs"
+version = "0.1.0"
+edition = "2024"
+authors = ["David Brenton Allen"]
+description = "A reference implementation of the Nosr Object Spec Representation parser"
+license = "MIT"
+repository = "https://github.com/ExFed/nosr"
+keywords = ["nosr", "parser", "serialization"]
+categories = ["parsing", "encoding"]
+
+[dependencies]
+
+[dev-dependencies]
+
+[features]
+default = []
+# Future: rational numbers, serde integration, etc.
+# rationals = ["num-rational"]

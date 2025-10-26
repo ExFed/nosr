@@ -114,7 +114,7 @@ Let's define a few basic operation signatures/semantics:
 
 * `tab(node: nosr_node, key: string): result<nosr_node>`
 
-  Parses a node as a table and gets the
+  Parses a node as a table and gets the node in the table that corresponds to `key`.
 
 * `vec(node: nosr_node, n: int): result<nosr_node>`
 
