@@ -10,7 +10,7 @@
 //! ## Example
 //!
 //! ```rust
-//! use libnosr_rs::{document, tab, text};
+//! use libnosr_rs::{document, table, text};
 //!
 //! let source = r#"{
 //!     name: "Alice"
@@ -21,10 +21,10 @@
 //! let root = document(source).expect("failed to parse document");
 //!
 //! // Parse the table to get all key-value pairs
-//! let table = tab(&root).expect("failed to parse table");
+//! let tbl = table(&root).expect("failed to parse table");
 //!
 //! // Access the "name" field from the table
-//! let name_node = table.get("name").expect("missing name field");
+//! let name_node = tbl.get("name").expect("missing name field");
 //! let name = text(name_node).expect("name is not a string");
 //!
 //! assert_eq!(name, "Alice");
@@ -45,7 +45,7 @@ pub use node::Node;
 pub use span::Span;
 
 // Re-export the main API functions
-pub use node::{double, tab, text, uint64, vec};
+pub use node::{double, table, text, uint64, vector};
 pub use parser::document;
 
 #[cfg(test)]

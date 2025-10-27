@@ -46,15 +46,15 @@ impl<'a> Node<'a> {
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, tab, text};
+/// use libnosr_rs::{document, table, text};
 ///
 /// let source = "{ name: Alice, age: 30 }";
 /// let root = document(source).unwrap();
-/// let table = tab(&root).unwrap();
-/// let name = table.get("name").unwrap();
+/// let tbl = table(&root).unwrap();
+/// let name = tbl.get("name").unwrap();
 /// assert_eq!(text(name).unwrap(), "Alice");
 /// ```
-pub fn tab<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
+pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
     use crate::lexer::{Lexer, TokenKind};
 
     let content = node.raw().trim();
@@ -193,15 +193,15 @@ fn parse_balanced(
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, vec, text};
+/// use libnosr_rs::{document, vector, text};
 ///
 /// let source = "[hello, world]";
 /// let root = document(source).unwrap();
-/// let vector = vec(&root).unwrap();
-/// assert_eq!(text(&vector[0]).unwrap(), "hello");
-/// assert_eq!(text(&vector[1]).unwrap(), "world");
+/// let v = vector(&root).unwrap();
+/// assert_eq!(text(&v[0]).unwrap(), "hello");
+/// assert_eq!(text(&v[1]).unwrap(), "world");
 /// ```
-pub fn vec<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
+pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
     use crate::lexer::{Lexer, TokenKind};
 
     let content = node.raw().trim();
@@ -407,8 +407,8 @@ mod tests {
         }
     }"#;
         let root = Node::new(source, Span::new(0, source.len()));
-        let table = tab(&root).expect("failed to parse table");
-        let person = table.get("person").expect("person key not found");
+        let tbl = table(&root).expect("failed to parse table");
+        let person = tbl.get("person").expect("person key not found");
 
         // Check what we extracted
         let raw = person.raw();

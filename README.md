@@ -1,6 +1,6 @@
 # ![Nosr Object Spec Representation](./assets/nosr.svg)
 
-*Nosr Object Spec Representation*
+Also known as the *Nosr Object Spec Representation*.
 
 Pronounced [/noʊˈsɝ/](assets/audio/nosr_no-sir.mp3), or
 [/noʊ sinˈjɔɹ/](assets/audio/nosr_no-senior.mp3)

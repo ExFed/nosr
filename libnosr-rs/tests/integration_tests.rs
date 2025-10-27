@@ -2,7 +2,7 @@
 //!
 //! These tests verify the parser against examples from the nosr specification.
 
-use libnosr_rs::{document, double, tab, text, uint64, vec};
+use libnosr_rs::{document, double, table, text, uint64, vector};
 
 #[test]
 fn test_simple_text() {
@@ -23,13 +23,13 @@ fn test_simple_vector() {
     let source = "[some, kind, of, \"vector\"]";
     let root = document(source).expect("parse failed");
 
-    let vector = vec(&root).expect("vec failed");
-    assert_eq!(vector.len(), 4);
+    let v = vector(&root).expect("vector failed");
+    assert_eq!(v.len(), 4);
 
-    assert_eq!(text(&vector[0]).expect("text failed"), "some");
-    assert_eq!(text(&vector[1]).expect("text failed"), "kind");
-    assert_eq!(text(&vector[2]).expect("text failed"), "of");
-    assert_eq!(text(&vector[3]).expect("text failed"), "vector");
+    assert_eq!(text(&v[0]).expect("text failed"), "some");
+    assert_eq!(text(&v[1]).expect("text failed"), "kind");
+    assert_eq!(text(&v[2]).expect("text failed"), "of");
+    assert_eq!(text(&v[3]).expect("text failed"), "vector");
 }
 
 #[test]
@@ -40,12 +40,12 @@ fn test_simple_table() {
     }"#;
 
     let root = document(source).expect("parse failed");
-    let table = tab(&root).expect("tab failed");
+    let tbl = table(&root).expect("table failed");
 
-    let letters = table.get("letters").expect("letters not found");
+    let letters = tbl.get("letters").expect("letters not found");
     assert_eq!(text(letters).expect("text failed"), "abcd");
 
-    let numbers = table.get("numbers").expect("numbers not found");
+    let numbers = tbl.get("numbers").expect("numbers not found");
     assert_eq!(text(numbers).expect("text failed"), "1234");
 }
 
@@ -56,8 +56,8 @@ fn test_table_with_escapes() {
     }"#;
 
     let root = document(source).expect("parse failed");
-    let table = tab(&root).expect("tab failed");
-    let value = table.get("escape:me").expect("key not found");
+    let tbl = table(&root).expect("table failed");
+    let value = tbl.get("escape:me").expect("key not found");
     assert_eq!(
         text(value).expect("text failed"),
         r#"have a double quote:""#
@@ -74,9 +74,9 @@ fn test_nested_table() {
     }"#;
 
     let root = document(source).expect("parse failed");
-    let root_table = tab(&root).expect("tab failed");
+    let root_table = table(&root).expect("table failed");
     let person = root_table.get("person").expect("person not found");
-    let person_table = tab(person).expect("tab failed");
+    let person_table = table(person).expect("table failed");
 
     let name = person_table.get("name").expect("name not found");
     assert_eq!(text(name).expect("text failed"), "Alice");
@@ -90,16 +90,16 @@ fn test_nested_vector() {
     let source = "[[1, 2], [3, 4]]";
 
     let root = document(source).expect("parse failed");
-    let outer_vec = vec(&root).expect("vec failed");
+    let outer_vec = vector(&root).expect("vector failed");
 
     let first = &outer_vec[0];
     let second = &outer_vec[1];
 
-    let first_vec = vec(first).expect("vec failed");
+    let first_vec = vector(first).expect("vector failed");
     assert_eq!(uint64(&first_vec[0]).expect("uint64 failed"), 1);
     assert_eq!(uint64(&first_vec[1]).expect("uint64 failed"), 2);
 
-    let second_vec = vec(second).expect("vec failed");
+    let second_vec = vector(second).expect("vector failed");
     assert_eq!(uint64(&second_vec[0]).expect("uint64 failed"), 3);
     assert_eq!(uint64(&second_vec[1]).expect("uint64 failed"), 4);
 }
@@ -108,12 +108,12 @@ fn test_nested_vector() {
 fn test_numbers() {
     let source = "{ int: 42, float: 3.14159 }";
     let root = document(source).expect("parse failed");
-    let table = tab(&root).expect("tab failed");
+    let tbl = table(&root).expect("table failed");
 
-    let int_node = table.get("int").expect("int not found");
+    let int_node = tbl.get("int").expect("int not found");
     assert_eq!(uint64(int_node).expect("uint64 failed"), 42);
 
-    let float_node = table.get("float").expect("float not found");
+    let float_node = tbl.get("float").expect("float not found");
     let val = double(float_node).expect("double failed");
     assert!((val - 3.14159).abs() < 0.00001);
 }
@@ -132,8 +132,8 @@ fn test_comments() {
     eprintln!("Root span: {:?}", root.span());
     eprintln!("Root raw: {:?}", root.raw());
     eprintln!("Starts with brace: {}", root.raw().trim().starts_with('{'));
-    let table = tab(&root).expect("tab failed");
-    let value = table.get("key").expect("key not found");
+    let tbl = table(&root).expect("table failed");
+    let value = tbl.get("key").expect("key not found");
     assert_eq!(text(value).expect("text failed"), "value");
 }
 
@@ -146,11 +146,11 @@ fn test_multiline_vector() {
     ]"#;
 
     let root = document(source).expect("parse failed");
-    let vector = vec(&root).expect("vec failed");
+    let v = vector(&root).expect("vector failed");
 
-    assert_eq!(text(&vector[0]).expect("text failed"), "one");
-    assert_eq!(text(&vector[1]).expect("text failed"), "two");
-    assert_eq!(text(&vector[2]).expect("text failed"), "three");
+    assert_eq!(text(&v[0]).expect("text failed"), "one");
+    assert_eq!(text(&v[1]).expect("text failed"), "two");
+    assert_eq!(text(&v[2]).expect("text failed"), "three");
 }
 
 #[test]
