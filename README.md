@@ -53,12 +53,12 @@ and ***vectors***. All ***scalar*** values live at the leaves of the parse tree.
 
 **Tables** are bounded by `{` and `}` characters. Contain a sequence of pairs,
 which are defined as a pair of values separated by a `:` character and delimited
-by a `,` or `;` or newline character. Tolerates a trailing delimiter. It's
+by a `,` or newline character. Tolerates a trailing delimiter. It's
 probably smart to say something like "keys are always strings", but I'm lazy, so
 we'll burn that bridge when we come to it.
 
 **Vectors** are bounded by `[` and `]` characters. Sequence elements are
-delimited by a `,` or `;` or newline character. Tolerates a trailing delimiter.
+delimited by a `,` or newline character. Tolerates a trailing delimiter.
 Essentially shorthand for a table with sequential unsigned integers for keys.
 
 Parsers are obsessive compulsive perfectionists, so we have to define a little

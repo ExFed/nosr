@@ -164,8 +164,8 @@ fn test_vector_with_trailing_delimiter() {
 }
 
 #[test]
-fn test_table_with_semicolons() {
-    let source = "{ a: 1; b: 2; c: 3 }";
+fn test_table_with_commas() {
+    let source = "{ a: 1, b: 2, c: 3 }";
     let root = document(source).expect("parse failed");
     let tbl = table(&root).expect("table failed");
 

@@ -1,7 +1,7 @@
 //! Lexical analysis for nosr documents.
 //!
 //! The lexer breaks the input into tokens, handling:
-//! - Structural characters: `{`, `}`, `[`, `]`, `:`, `,`, `;`
+//! - Structural characters: `{`, `}`, `[`, `]`, `:`, `,`
 //! - String literals with escape sequences
 //! - Comments (line and block)
 //! - Whitespace
@@ -37,8 +37,6 @@ pub enum TokenKind {
     Colon,
     /// Comma `,`
     Comma,
-    /// Semicolon `;`
-    Semicolon,
     /// Newline (serves as delimiter)
     Newline,
     /// A string literal (contents stored in source via span)
@@ -208,7 +206,7 @@ impl<'a> Lexer<'a> {
             // Stop at structural characters or whitespace
             if matches!(
                 ch,
-                '{' | '}' | '[' | ']' | ':' | ',' | ';' | '\n' | ' ' | '\t' | '\r'
+                '{' | '}' | '[' | ']' | ':' | ',' | '\n' | ' ' | '\t' | '\r'
             ) {
                 break;
             }
@@ -288,13 +286,6 @@ impl<'a> Lexer<'a> {
                     self.consume();
                     return Ok(Token {
                         kind: TokenKind::Comma,
-                        span: Span::new(start, 1),
-                    });
-                }
-                Some(';') => {
-                    self.consume();
-                    return Ok(Token {
-                        kind: TokenKind::Semicolon,
                         span: Span::new(start, 1),
                     });
                 }

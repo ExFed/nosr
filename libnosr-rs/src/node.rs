@@ -79,12 +79,9 @@ pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
 
     // Parse key-value pairs
     loop {
-        // Skip delimiters (newlines, commas, semicolons)
+        // Skip delimiters (newlines, commas)
         let mut tok = lexer.next_token()?;
-        if matches!(
-            tok.kind,
-            TokenKind::Newline | TokenKind::Comma | TokenKind::Semicolon
-        ) {
+        if matches!(tok.kind, TokenKind::Newline | TokenKind::Comma) {
             continue;
         }
 
@@ -226,12 +223,9 @@ pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
 
     // Parse elements
     loop {
-        // Skip delimiters (newlines, commas, semicolons)
+        // Skip delimiters (newlines, commas)
         let mut tok = lexer.next_token()?;
-        while matches!(
-            tok.kind,
-            TokenKind::Newline | TokenKind::Comma | TokenKind::Semicolon
-        ) {
+        while matches!(tok.kind, TokenKind::Newline | TokenKind::Comma) {
             tok = lexer.next_token()?;
         }
 
