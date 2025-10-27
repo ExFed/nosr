@@ -2,9 +2,9 @@
 
 *Nosr Object Spec Representation*
 
-Pronounced [/noʊˈsɝ/](http://ipa-reader.xyz/?text=no%CA%8A%CB%88s%C9%9D), or
-[/noʊ sinˈjɔɹ/](http://ipa-reader.xyz/?text=no%CA%8A%20sin%CB%88j%C9%94%C9%B9)
-... or [/ˈnɒzər/](http://ipa-reader.xyz/?text=%CB%88n%C9%92z%C9%99r). Whatever
+Pronounced [/noʊˈsɝ/](assets/audio/nosr_no-sir.mp3), or
+[/noʊ sinˈjɔɹ/](assets/audio/nosr_no-senior.mp3)
+... or [/ˈnɒzər/](assets/audio/nosr_nozzer.mp3). Whatever
 floats your boat.
 
 ## Rationale
