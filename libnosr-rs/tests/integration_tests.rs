@@ -121,10 +121,10 @@ fn test_numbers() {
 #[test]
 fn test_comments() {
     let source = r#"
-    // This is a line comment
+    # This is a line comment
     {
-        /* block comment */
-        key: value // another comment
+        #* block comment *#
+        key: value # another comment
     }
     "#;
 

@@ -74,9 +74,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Example 5: Comments
     println!("\n=== Example 5: Comments ===");
     let source = r#"
-        // This is a line comment
+        # This is a line comment
         {
-            /* Block comments work too! */
+            #* Block comments work too! *#
             message: "Comments are ignored by the parser"
         }
     "#;

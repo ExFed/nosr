@@ -105,10 +105,9 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    /// Skip a line comment (from `//` to end of line).
+    /// Skip a line comment (from `#` to end of line).
     fn skip_line_comment(&mut self) {
-        // Consume the //
-        self.consume();
+        // Consume the #
         self.consume();
 
         // Skip until newline
@@ -120,15 +119,15 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    /// Skip a block comment (from `/*` to `*/`).
+    /// Skip a block comment (from `#*` to `*#`).
     fn skip_block_comment(&mut self) -> Result<()> {
         let start = self.pos;
 
-        // Consume the /*
+        // Consume the #*
         self.consume();
         self.consume();
 
-        // Find the closing */
+        // Find the closing *#
         loop {
             match self.peek() {
                 None => {
@@ -139,7 +138,7 @@ impl<'a> Lexer<'a> {
                 }
                 Some('*') => {
                     self.consume();
-                    if let Some('/') = self.peek() {
+                    if let Some('#') = self.peek() {
                         self.consume();
                         return Ok(());
                     }
@@ -212,7 +211,7 @@ impl<'a> Lexer<'a> {
             }
 
             // Stop at comment starts
-            if ch == '/' && matches!(self.peek_at(1), Some('/') | Some('*')) {
+            if ch == '#' && matches!(self.peek_at(1), Some('*')) {
                 break;
             }
 
@@ -292,20 +291,17 @@ impl<'a> Lexer<'a> {
                 Some('"') => {
                     return self.lex_string();
                 }
-                Some('/') => {
+                Some('#') => {
                     // Check for comments
                     match self.peek_at(1) {
-                        Some('/') => {
-                            self.skip_line_comment();
-                            continue; // Loop to get next token
-                        }
                         Some('*') => {
                             self.skip_block_comment()?;
                             continue; // Loop to get next token
                         }
                         _ => {
-                            // Just a regular scalar starting with /
-                            return Ok(self.lex_scalar());
+                            // Line comment - skip until newline
+                            self.skip_line_comment();
+                            continue; // Loop to get next token
                         }
                     }
                 }
@@ -355,24 +351,24 @@ mod tests {
 
     #[test]
     fn lex_line_comment() {
-        let mut lexer = Lexer::new("// comment\nhello");
+        let mut lexer = Lexer::new("# comment\nhello");
         // Line comment consumes until and including the newline
         let token = lexer.next_token().unwrap();
         assert_eq!(token.kind, TokenKind::Scalar);
-        assert_eq!(token.span.extract("// comment\nhello"), "hello");
+        assert_eq!(token.span.extract("# comment\nhello"), "hello");
     }
 
     #[test]
     fn lex_block_comment() {
-        let mut lexer = Lexer::new("/* comment */ hello");
+        let mut lexer = Lexer::new("#* comment *# hello");
         let token = lexer.next_token().unwrap();
         assert_eq!(token.kind, TokenKind::Scalar);
-        assert_eq!(token.span.extract("/* comment */ hello"), "hello");
+        assert_eq!(token.span.extract("#* comment *# hello"), "hello");
     }
 
     #[test]
     fn lex_unclosed_comment() {
-        let mut lexer = Lexer::new("/* unclosed");
+        let mut lexer = Lexer::new("#* unclosed");
         let result = lexer.next_token();
         assert!(matches!(
             result,

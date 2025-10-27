@@ -82,11 +82,10 @@ Let's also define syntax for comments. Unlike [Douglas
 Crockford](https://web.archive.org/web/20190112173904/https://plus.google.com/118095276221607585885/posts/RK8qyGVaGSr),
 I'm no monster.
 
-**Line Comments** are normal C-style line comments: `//` until the next newline.
-Discarded by the parser.
+**Line Comments** start with `#` until the next newline. Discarded by the
+parser.
 
-**Block Comments** are normal C-style block comments, bounded by `/*` and `*/`
-tokens. Discarded by the parser.
+**Block Comments** are bounded by `#*` and `*#` tokens. Discarded by the parser.
 
 ### The API
 
@@ -189,16 +188,16 @@ The parser should also support cases like this:
 
 ### Comments
 
-    /*
+    #*
      * The tyranny of comments.
-     */
-    "Ceci n'est pas une pipe." // This, however, is a comment.
+     *#
+    "Ceci n'est pas une pipe." # This, however, is a comment.
 
 ### "Numbers"
 
 Keep calm, use the **nosr** API, and carry on.
 
-    "12.34" // what did you expect? convenience?
+    "12.34" # what did you expect? convenience?
 
 ### Vectors
 
