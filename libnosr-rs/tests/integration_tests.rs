@@ -157,24 +157,24 @@ fn test_multiline_vector() {
 fn test_vector_with_trailing_delimiter() {
     let source = "[one, two, three,]";
     let root = document(source).expect("parse failed");
-    let vector = vec(&root).expect("vec failed");
+    let v = vector(&root).expect("vector failed");
 
-    assert_eq!(text(&vector[0]).expect("text failed"), "one");
-    assert_eq!(text(&vector[2]).expect("text failed"), "three");
+    assert_eq!(text(&v[0]).expect("text failed"), "one");
+    assert_eq!(text(&v[2]).expect("text failed"), "three");
 }
 
 #[test]
 fn test_table_with_semicolons() {
     let source = "{ a: 1; b: 2; c: 3 }";
     let root = document(source).expect("parse failed");
-    let table = tab(&root).expect("tab failed");
+    let tbl = table(&root).expect("table failed");
 
-    let a = table.get("a").expect("a not found");
+    let a = tbl.get("a").expect("a not found");
     assert_eq!(uint64(a).expect("uint64 failed"), 1);
 
-    let b = table.get("b").expect("b not found");
+    let b = tbl.get("b").expect("b not found");
     assert_eq!(uint64(b).expect("uint64 failed"), 2);
 
-    let c = table.get("c").expect("c not found");
+    let c = tbl.get("c").expect("c not found");
     assert_eq!(uint64(c).expect("uint64 failed"), 3);
 }

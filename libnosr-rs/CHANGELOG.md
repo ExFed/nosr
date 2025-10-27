@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial implementation of nosr parser in Rust
 - Core modules: `span`, `error`, `lexer`, `node`, `parser`
-- API functions: `document`, `tab`, `vec`, `text`, `uint64`, `double`
+- API functions: `document`, `table`, `vector`, `text`, `uint64`, `double`
 - Support for tables, vectors, and scalars
 - Line and block comment support
 - String escape sequences

@@ -1,6 +1,6 @@
-# ![Nosr Object Spec Representation](./assets/nosr.svg)
+# ![NOSr Object Spec Representation](./assets/nosr.svg)
 
-Also known as the *Nosr Object Spec Representation*.
+*NOSr* Also known as the *NOSr Object Spec Representation*.
 
 Pronounced [/noʊˈsɝ/](assets/audio/nosr_no-sir.mp3), or
 [/noʊ sinˈjɔɹ/](assets/audio/nosr_no-senior.mp3)
@@ -112,11 +112,11 @@ Let's define a few basic operation signatures/semantics:
 
   Parses the root node of a document.
 
-* `tab(node: nosr_node): result<map<string, nosr_node>>`
+* `table(node: nosr_node): result<map<string, nosr_node>>`
 
   Parses a node as a table and returns a map of all key-value pairs.
 
-* `vec(node: nosr_node): result<seq<nosr_node>>`
+* `vector(node: nosr_node): result<seq<nosr_node>>`
 
   Parses a node as a vector and returns a sequence of elements.
 

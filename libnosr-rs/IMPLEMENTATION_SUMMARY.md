@@ -13,8 +13,8 @@
 
 **API Functions**
 - `document()`: Parse nosr documents from strings
-- `tab()`: Navigate table structures by key
-- `vec()`: Navigate vector structures by index
+- `table()`: Navigate table structures by key
+- `vector()`: Navigate vector structures by index
 - `text()`: Parse text with escape sequence support
 - `uint64()`: Parse unsigned integers
 - `double()`: Parse floating-point numbers
