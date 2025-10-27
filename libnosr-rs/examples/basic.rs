@@ -17,25 +17,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         city: "San Francisco"
     }"#;
     let root = document(source)?;
+    let table = tab(&root)?;
 
-    let name = tab(&root, "name")?;
-    println!("Name: {}", text(&name)?);
+    let name = table.get("name").expect("name not found");
+    println!("Name: {}", text(name)?);
 
-    let age = tab(&root, "age")?;
-    println!("Age: {}", uint64(&age)?);
+    let age = table.get("age").expect("age not found");
+    println!("Age: {}", uint64(age)?);
 
-    let city = tab(&root, "city")?;
-    println!("City: {}", text(&city)?);
+    let city = table.get("city").expect("city not found");
+    println!("City: {}", text(city)?);
 
     // Example 3: Vector
     println!("\n=== Example 3: Vector ===");
     let source = "[apple, banana, cherry]";
     let root = document(source)?;
+    let fruits = vec(&root)?;
 
     println!("Fruits:");
-    for i in 0..3 {
-        let fruit = vec(&root, i)?;
-        println!("  {}: {}", i, text(&fruit)?);
+    for (i, fruit) in fruits.iter().enumerate() {
+        println!("  {}: {}", i, text(fruit)?);
     }
 
     // Example 4: Nested structures
@@ -49,23 +50,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         scores: [95.5, 87.3, 92.1]
     }"#;
     let root = document(source)?;
+    let root_table = tab(&root)?;
 
-    let person = tab(&root, "person")?;
-    let name = tab(&person, "name")?;
-    println!("Person name: {}", text(&name)?);
+    let person = root_table.get("person").expect("person not found");
+    let person_table = tab(person)?;
+    let name = person_table.get("name").expect("name not found");
+    println!("Person name: {}", text(name)?);
 
-    let hobbies = tab(&person, "hobbies")?;
+    let hobbies = person_table.get("hobbies").expect("hobbies not found");
+    let hobbies_vec = vec(hobbies)?;
     println!("Hobbies:");
-    for i in 0..3 {
-        let hobby = vec(&hobbies, i)?;
-        println!("  - {}", text(&hobby)?);
+    for hobby in &hobbies_vec {
+        println!("  - {}", text(hobby)?);
     }
 
-    let scores = tab(&root, "scores")?;
+    let scores = root_table.get("scores").expect("scores not found");
+    let scores_vec = vec(scores)?;
     println!("Scores:");
-    for i in 0..3 {
-        let score = vec(&scores, i)?;
-        println!("  {}: {:.1}", i, double(&score)?);
+    for (i, score) in scores_vec.iter().enumerate() {
+        println!("  {}: {:.1}", i, double(score)?);
     }
 
     // Example 5: Comments
@@ -78,8 +81,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     "#;
     let root = document(source)?;
-    let message = tab(&root, "message")?;
-    println!("Message: {}", text(&message)?);
+    let table = tab(&root)?;
+    let message = table.get("message").expect("message not found");
+    println!("Message: {}", text(message)?);
 
     // Example 6: Escape sequences
     println!("\n=== Example 6: Escape Sequences ===");
@@ -89,15 +93,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         special: "Colon\: and bracket\["
     }"#;
     let root = document(source)?;
+    let table = tab(&root)?;
 
-    let quote = tab(&root, "quote")?;
-    println!("Quote: {}", text(&quote)?);
+    let quote = table.get("quote").expect("quote not found");
+    println!("Quote: {}", text(quote)?);
 
-    let newline = tab(&root, "newline")?;
-    println!("Newline: {}", text(&newline)?);
+    let newline = table.get("newline").expect("newline not found");
+    println!("Newline: {}", text(newline)?);
 
-    let special = tab(&root, "special")?;
-    println!("Special: {}", text(&special)?);
+    let special = table.get("special").expect("special not found");
+    println!("Special: {}", text(special)?);
 
     Ok(())
 }

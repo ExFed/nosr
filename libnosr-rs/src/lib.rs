@@ -20,9 +20,12 @@
 //! // Parse the document (lazy - doesn't parse the entire tree yet)
 //! let root = document(source).expect("failed to parse document");
 //!
-//! // Navigate to the "name" field (parses just what we need)
-//! let name_node = tab(&root, "name").expect("missing name field");
-//! let name = text(&name_node).expect("name is not a string");
+//! // Parse the table to get all key-value pairs
+//! let table = tab(&root).expect("failed to parse table");
+//!
+//! // Access the "name" field from the table
+//! let name_node = table.get("name").expect("missing name field");
+//! let name = text(name_node).expect("name is not a string");
 //!
 //! assert_eq!(name, "Alice");
 //! ```

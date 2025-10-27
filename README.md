@@ -112,13 +112,13 @@ Let's define a few basic operation signatures/semantics:
 
   Parses the root node of a document.
 
-* `tab(node: nosr_node, key: string): result<nosr_node>`
+* `tab(node: nosr_node): result<map<string, nosr_node>>`
 
-  Parses a node as a table and gets the node in the table that corresponds to `key`.
+  Parses a node as a table and returns a map of all key-value pairs.
 
-* `vec(node: nosr_node, n: int): result<nosr_node>`
+* `vec(node: nosr_node): result<seq<nosr_node>>`
 
-  Parses a node as a vector and gets the `n`th node in the vector.
+  Parses a node as a vector and returns a sequence of elements.
 
 * `text(node: nosr_node): result<string>`
 
@@ -145,6 +145,18 @@ So what about those nebulous data types? Let's define them:
   A result type. Expresses "success" or "error" conditions. Depending upon
   programming paradigm, may be a monad, a union, an object ... anything that
   communicates to the programmer whether and where a parse failure occurred.
+
+* `map<K, V>`
+
+  A mapping from some key type to some value type. Depending upon paradigm and
+  implementation, this could be a hashmap, b-tree, or any other structure that
+  associates keys to values.
+
+* `seq<T>`
+
+  Any type that is able to represent a sequence of values. Depending upon
+  programming paradigm and implementation, this may be a vector, array, or
+  linked list.
 
 * `nosr_node`
 

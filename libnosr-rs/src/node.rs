@@ -10,6 +10,7 @@
 use crate::error::{Error, ErrorKind, Result};
 use crate::span::Span;
 use std::borrow::Cow;
+use std::collections::HashMap;
 
 /// A node in the nosr parse tree.
 ///
@@ -40,19 +41,20 @@ impl<'a> Node<'a> {
     }
 }
 
-/// Navigate to a key in a table node.
+/// Parse a node as a table.
 ///
 /// # Example
 ///
 /// ```rust
 /// use libnosr_rs::{document, tab, text};
 ///
-/// let source = "{ name: Alice }";
+/// let source = "{ name: Alice, age: 30 }";
 /// let root = document(source).unwrap();
-/// let name = tab(&root, "name").unwrap();
-/// assert_eq!(text(&name).unwrap(), "Alice");
+/// let table = tab(&root).unwrap();
+/// let name = table.get("name").unwrap();
+/// assert_eq!(text(name).unwrap(), "Alice");
 /// ```
-pub fn tab<'a>(node: &Node<'a>, key: &str) -> Result<Node<'a>> {
+pub fn tab<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
     use crate::lexer::{Lexer, TokenKind};
 
     let content = node.raw().trim();
@@ -62,8 +64,9 @@ pub fn tab<'a>(node: &Node<'a>, key: &str) -> Result<Node<'a>> {
         return Err(Error::new(ErrorKind::NotATable, node.span));
     }
 
-    // Parse the table to find the key
+    // Parse the table to collect all key-value pairs
     let mut lexer = Lexer::new(node.source);
+    let mut result = HashMap::new();
 
     // Seek the lexer to our starting position
     lexer.set_pos(node.span.start);
@@ -140,17 +143,12 @@ pub fn tab<'a>(node: &Node<'a>, key: &str) -> Result<Node<'a>> {
             }
         };
 
-        // Check if this is the key we're looking for
-        if key_text == key {
-            let value_span = Span::new(value_start.start, value_end.end() - value_start.start);
-            return Ok(Node::new(node.source, value_span));
-        }
+        // Add to the result map
+        let value_span = Span::new(value_start.start, value_end.end() - value_start.start);
+        result.insert(key_text, Node::new(node.source, value_span));
     }
 
-    Err(Error::new(
-        ErrorKind::KeyNotFound(key.to_string()),
-        node.span,
-    ))
+    Ok(result)
 }
 
 /// Helper function to parse balanced braces/brackets.
@@ -190,7 +188,7 @@ fn parse_balanced(
     Ok(last_span)
 }
 
-/// Navigate to an index in a vector node.
+/// Parse a node as a vector and return all elements.
 ///
 /// # Example
 ///
@@ -199,10 +197,11 @@ fn parse_balanced(
 ///
 /// let source = "[hello, world]";
 /// let root = document(source).unwrap();
-/// let first = vec(&root, 0).unwrap();
-/// assert_eq!(text(&first).unwrap(), "hello");
+/// let vector = vec(&root).unwrap();
+/// assert_eq!(text(&vector[0]).unwrap(), "hello");
+/// assert_eq!(text(&vector[1]).unwrap(), "world");
 /// ```
-pub fn vec<'a>(node: &Node<'a>, index: usize) -> Result<Node<'a>> {
+pub fn vec<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
     use crate::lexer::{Lexer, TokenKind};
 
     let content = node.raw().trim();
@@ -212,8 +211,9 @@ pub fn vec<'a>(node: &Node<'a>, index: usize) -> Result<Node<'a>> {
         return Err(Error::new(ErrorKind::NotAVector, node.span));
     }
 
-    // Parse the vector to find the nth element
+    // Parse the vector to collect all elements
     let mut lexer = Lexer::new(node.source);
+    let mut result = Vec::new();
 
     // Seek the lexer to our starting position
     lexer.set_pos(node.span.start);
@@ -225,8 +225,6 @@ pub fn vec<'a>(node: &Node<'a>, index: usize) -> Result<Node<'a>> {
     }
 
     // Parse elements
-    let mut current_index = 0;
-
     loop {
         // Skip delimiters (newlines, commas, semicolons)
         let mut tok = lexer.next_token()?;
@@ -273,16 +271,12 @@ pub fn vec<'a>(node: &Node<'a>, index: usize) -> Result<Node<'a>> {
             }
         };
 
-        // Check if this is the index we're looking for
-        if current_index == index {
-            let elem_span = Span::new(elem_start.start, elem_end.end() - elem_start.start);
-            return Ok(Node::new(node.source, elem_span));
-        }
-
-        current_index += 1;
+        // Add to the result vector
+        let elem_span = Span::new(elem_start.start, elem_end.end() - elem_start.start);
+        result.push(Node::new(node.source, elem_span));
     }
 
-    Err(Error::new(ErrorKind::IndexOutOfBounds(index), node.span))
+    Ok(result)
 }
 
 /// Parse a node as a text string.
@@ -413,7 +407,8 @@ mod tests {
         }
     }"#;
         let root = Node::new(source, Span::new(0, source.len()));
-        let person = tab(&root, "person").expect("failed to get person");
+        let table = tab(&root).expect("failed to parse table");
+        let person = table.get("person").expect("person key not found");
 
         // Check what we extracted
         let raw = person.raw();
