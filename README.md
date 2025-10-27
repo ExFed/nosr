@@ -1,6 +1,7 @@
-# ![NOSr Object Spec Representation](./assets/nosr.svg)
+# ![NOSr Object Spec representation](./assets/nosr.svg)
 
-*NOSr* Also known as the *NOSr Object Spec Representation*.
+*NOSr*, also known as the *NOSr Object Spec representation*, may also be spelled
+*nosr*.
 
 Pronounced [/noʊˈsɝ/](assets/audio/nosr_no-sir.mp3), or
 [/noʊ sinˈjɔɹ/](assets/audio/nosr_no-senior.mp3)
@@ -15,11 +16,11 @@ as flexible it is, doesn't completely solve every imaginable use case. Some
 people really want extended types. Others want functions and metaprogramming
 support. Clearly JSON just isn't good enough.
 
-Well, if you're one of those people, **nosr** probably won't help you, because
+Well, if you're one of those people, **NOSr** probably won't help you, because
 it has fewer types than JSON, and it definitely doesn't give you any fancy
 functions or metaprogramming support. But it gives you access to a dead-simple
 tree structure that you, the programmer, get to interpret all on your own. Don't
-expect any special formatting out of **nosr** except a tree.
+expect any special formatting out of **NOSr** except a tree.
 
 But wait! There's more! The "parsing" bits are actually built into the API!
 Sometimes you really absolutely need a 64-bit unsigned integer instead of a
@@ -29,7 +30,7 @@ much more precise than `0.333`. Well, you *could* add more types to the format
 ... or you could just admit that parsing things into pre-baked categories is
 either really silly, or requires [way more
 math](https://en.wikipedia.org/wiki/Dependent_type) than most people are willing
-to stomach. Hence: **nosr**.
+to stomach. Hence: **NOSr**.
 
 Good luck. Have fun. May the odds be ever in your favor.
 
@@ -53,9 +54,9 @@ and ***vectors***. All ***scalar*** values live at the leaves of the parse tree.
 
 **Tables** are bounded by `{` and `}` characters. Contain a sequence of pairs,
 which are defined as a pair of values separated by a `:` character and delimited
-by a `,` or newline character. Tolerates a trailing delimiter. It's
-probably smart to say something like "keys are always strings", but I'm lazy, so
-we'll burn that bridge when we come to it.
+by a `,` or newline character. Tolerates a trailing delimiter. It's probably
+smart to say something like "keys are always strings", but I'm lazy, so we'll
+burn that bridge when we come to it.
 
 **Vectors** are bounded by `[` and `]` characters. Sequence elements are
 delimited by a `,` or newline character. Tolerates a trailing delimiter.
@@ -89,10 +90,10 @@ parser.
 
 ### The API
 
-As mentioned above, the point of **nosr** isn't to jam a bunch of sophisticated
+As mentioned above, the point of **NOSr** isn't to jam a bunch of sophisticated
 math into a data format. No, that's been done. Don't get me wrong, languages
 like [Dhall](https://dhall-lang.org/) and [CUE](https://cuelang.org/) are wicked
-awesome and deserve attention, but that's not the goal of **nosr**.
+awesome and deserve attention, but that's not the goal of **NOSr**.
 
 Instead, the serialized format simply encodes a tree structure. The rest of the
 heavy lifting comes from the API, which defines "types" in terms of function
@@ -100,7 +101,7 @@ calls. In the event you only need a few values within a document, this should
 reduce the time spent parsing, as it means your program will only parse the
 sections that it absolutely needs, and no more.
 
-Of course, you could just argue **nosr** is little more than a lexical analyzer
+Of course, you could just argue **NOSr** is little more than a lexical analyzer
 and a silly name. You'd be mostly right.
 
 #### Operations
@@ -159,7 +160,7 @@ So what about those nebulous data types? Let's define them:
 
 * `nosr_node`
 
-  A partially-parsed node in the **nosr** tree. Represents a substring of the
+  A partially-parsed node in the **NOSr** tree. Represents a substring of the
   document (e.g.: source, position, and length).
 
 * `string`
@@ -183,7 +184,7 @@ A file can just be a single scalar:
 The parser should also support cases like this:
 
     you could also just write a plain-text
-    file and call it \"nosr\" so long as it
+    file and call it \"NOSr\" so long as it
     appropriately escapes reserved chars.
 
 ### Comments
@@ -195,7 +196,7 @@ The parser should also support cases like this:
 
 ### "Numbers"
 
-Keep calm, use the **nosr** API, and carry on.
+Keep calm, use the **NOSr** API, and carry on.
 
     "12.34" # what did you expect? convenience?
 
