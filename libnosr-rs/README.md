@@ -15,7 +15,7 @@ This crate provides a well-commented, easy-to-understand implementation that ser
 - **Simple and readable**: Clear code with extensive comments
 - **Comprehensive error reporting**: Errors include source positions
 - **UTF-8 support**: Handles Unicode text correctly
-- **Comments**: Supports both line (`//`) and block (`/* */`) comments
+- **Comments**: Supports both line (`#`) and block (`#* ... *#`) comments
 
 ## Installation
 
