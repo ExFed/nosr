@@ -444,8 +444,8 @@ mod tests {
 
     #[test]
     fn parse_double() {
-        let source = "3.14";
+        let source = "12.5";
         let node = Node::new(source, Span::new(0, 4));
-        assert!((double(&node).unwrap() - 3.14).abs() < 0.0001);
+        assert!((double(&node).unwrap() - 12.5).abs() < 0.0001);
     }
 }

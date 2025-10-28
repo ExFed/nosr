@@ -106,7 +106,7 @@ fn test_nested_vector() {
 
 #[test]
 fn test_numbers() {
-    let source = "{ int: 42, float: 3.14159 }";
+    let source = "{ int: 42, float: 12.75 }";
     let root = document(source).expect("parse failed");
     let tbl = table(&root).expect("table failed");
 
@@ -115,7 +115,7 @@ fn test_numbers() {
 
     let float_node = tbl.get("float").expect("float not found");
     let val = double(float_node).expect("double failed");
-    assert!((val - 3.14159).abs() < 0.00001);
+    assert!((val - 12.75).abs() < 0.00001);
 }
 
 #[test]
