@@ -115,7 +115,7 @@ fn test_numbers() {
 
     let float_node = tbl.get("float").expect("float not found");
     let val = double(float_node).expect("double failed");
-    assert!((val - 3.14159).abs() < 0.00001);
+    assert!((val - std::f64::consts::PI).abs() < 0.00001);
 }
 
 #[test]

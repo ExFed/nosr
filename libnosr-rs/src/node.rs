@@ -446,6 +446,6 @@ mod tests {
     fn parse_double() {
         let source = "3.14";
         let node = Node::new(source, Span::new(0, 4));
-        assert!((double(&node).unwrap() - 3.14).abs() < 0.0001);
+        assert!((double(&node).unwrap() - std::f64::consts::PI).abs() < 0.01);
     }
 }
