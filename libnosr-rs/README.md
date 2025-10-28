@@ -58,12 +58,12 @@ assert_eq!(uint64(&first_score)?, 95);
 
 The library provides these main functions:
 
-- `document(source: &str) -> Result<Node>` - Parse a nosr document
-- `table(node: &Node) -> Result<Map<String, Node>>` - Parse as a table structure
-- `vector(node: &Node) -> Result<Vec<Node>>` - Parse as a vector structure
-- `text(node: &Node) -> Result<Cow<str>>` - Parse as text
-- `uint64(node: &Node) -> Result<u64>` - Parse as unsigned integer
-- `double(node: &Node) -> Result<f64>` - Parse as floating-point number
+- `document(source: &str) -> Result<LazyParseNode>` - Parse a nosr document
+- `table(node: &LazyParseNode) -> Result<Map<String, LazyParseNode>>` - Parse as a table structure
+- `vector(node: &LazyParseNode) -> Result<Vec<LazyParseNode>>` - Parse as a vector structure
+- `text(node: &LazyParseNode) -> Result<Cow<str>>` - Parse as text
+- `uint64(node: &LazyParseNode) -> Result<u64>` - Parse as unsigned integer
+- `double(node: &LazyParseNode) -> Result<f64>` - Parse as floating-point number
 
 ## Examples
 

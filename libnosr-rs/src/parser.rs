@@ -1,11 +1,11 @@
 //! Parser for nosr documents.
 //!
-//! The parser takes a source string and produces a root `Node`.
+//! The parser takes a source string and produces a root `LazyParseNode`.
 //! The actual parsing of tables, vectors, and values happens lazily
 //! when you navigate the tree.
 
 use crate::error::Result;
-use crate::node::Node;
+use crate::node::LazyParseNode;
 use crate::span::Span;
 
 /// Parse a nosr document from a string.
@@ -22,7 +22,7 @@ use crate::span::Span;
 /// let source = "{ name: Alice }";
 /// let root = document(source).expect("failed to parse");
 /// ```
-pub fn document<'a>(source: &'a str) -> Result<Node<'a>> {
+pub fn document<'a>(source: &'a str) -> Result<LazyParseNode<'a>> {
     use crate::lexer::{Lexer, TokenKind};
 
     // Use the lexer to find the first real token (skipping comments, whitespace, and newlines)
@@ -36,7 +36,7 @@ pub fn document<'a>(source: &'a str) -> Result<Node<'a>> {
 
     if first_token.kind == TokenKind::Eof {
         // Empty document - return empty span
-        return Ok(Node::new(source, Span::new(0, 0)));
+        return Ok(LazyParseNode::new(source, Span::new(0, 0)));
     }
 
     // Find the last token to determine the end of the document
@@ -56,7 +56,7 @@ pub fn document<'a>(source: &'a str) -> Result<Node<'a>> {
     }
 
     let span = Span::new(start_pos, last_span.end() - start_pos);
-    Ok(Node::new(source, span))
+    Ok(LazyParseNode::new(source, span))
 }
 
 #[cfg(test)]

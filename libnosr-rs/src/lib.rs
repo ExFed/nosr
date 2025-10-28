@@ -41,7 +41,7 @@ pub mod span;
 
 // Re-export the main API types and functions
 pub use error::{Error, Result};
-pub use node::Node;
+pub use node::LazyParseNode;
 pub use span::Span;
 
 // Re-export the main API functions

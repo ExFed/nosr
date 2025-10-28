@@ -1,7 +1,7 @@
 //! Node types representing parsed nosr values.
 //!
-//! A `Node` represents a partially-parsed value in a nosr document.
-//! Nodes are lazy: they store references to the source text and only
+//! A `LazyParseNode` represents a partially-parsed value in a nosr document.
+//! LazyParseNodes are lazy: they store references to the source text and only
 //! parse their contents when you call navigation or conversion functions.
 //!
 //! This design allows efficient access to deeply nested values without
@@ -17,14 +17,14 @@ use std::collections::HashMap;
 /// Represents a value that may be a table, vector, or scalar.
 /// The actual parsing happens lazily when you navigate or convert the node.
 #[derive(Debug, Clone)]
-pub struct Node<'a> {
+pub struct LazyParseNode<'a> {
     /// The complete source document (needed for extracting substrings)
     source: &'a str,
     /// The span of this node within the source
     span: Span,
 }
 
-impl<'a> Node<'a> {
+impl<'a> LazyParseNode<'a> {
     /// Create a new node referencing a region of the source.
     pub fn new(source: &'a str, span: Span) -> Self {
         Self { source, span }
@@ -54,7 +54,7 @@ impl<'a> Node<'a> {
 /// let name = tbl.get("name").unwrap();
 /// assert_eq!(text(name).unwrap(), "Alice");
 /// ```
-pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
+pub fn table<'a>(node: &LazyParseNode<'a>) -> Result<HashMap<String, LazyParseNode<'a>>> {
     use crate::lexer::{Lexer, TokenKind};
 
     let content = node.raw().trim();
@@ -94,7 +94,7 @@ pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
         let key_span = tok.span;
         let key_text = if tok.kind == TokenKind::String {
             // Parse as quoted string
-            let key_node = Node::new(node.source, key_span);
+            let key_node = LazyParseNode::new(node.source, key_span);
             text(&key_node)?.into_owned()
         } else if tok.kind == TokenKind::Scalar {
             key_span.extract(node.source).to_string()
@@ -142,7 +142,7 @@ pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
 
         // Add to the result map
         let value_span = Span::new(value_start.start, value_end.end() - value_start.start);
-        result.insert(key_text, Node::new(node.source, value_span));
+        result.insert(key_text, LazyParseNode::new(node.source, value_span));
     }
 
     Ok(result)
@@ -198,7 +198,7 @@ fn parse_balanced(
 /// assert_eq!(text(&v[0]).unwrap(), "hello");
 /// assert_eq!(text(&v[1]).unwrap(), "world");
 /// ```
-pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
+pub fn vector<'a>(node: &LazyParseNode<'a>) -> Result<Vec<LazyParseNode<'a>>> {
     use crate::lexer::{Lexer, TokenKind};
 
     let content = node.raw().trim();
@@ -267,7 +267,7 @@ pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
 
         // Add to the result vector
         let elem_span = Span::new(elem_start.start, elem_end.end() - elem_start.start);
-        result.push(Node::new(node.source, elem_span));
+        result.push(LazyParseNode::new(node.source, elem_span));
     }
 
     Ok(result)
@@ -288,7 +288,7 @@ pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
 /// let node2 = document("hello").unwrap();
 /// assert_eq!(text(&node2).unwrap(), "hello");
 /// ```
-pub fn text<'a>(node: &Node<'a>) -> Result<Cow<'a, str>> {
+pub fn text<'a>(node: &LazyParseNode<'a>) -> Result<Cow<'a, str>> {
     let content = node.raw().trim();
 
     if content.is_empty() {
@@ -357,7 +357,7 @@ pub fn text<'a>(node: &Node<'a>) -> Result<Cow<'a, str>> {
 /// let node = document("12345").unwrap();
 /// assert_eq!(uint64(&node).unwrap(), 12345);
 /// ```
-pub fn uint64(node: &Node) -> Result<u64> {
+pub fn uint64(node: &LazyParseNode) -> Result<u64> {
     let content = node.raw().trim();
 
     content.parse::<u64>().map_err(|e| {
@@ -378,7 +378,7 @@ pub fn uint64(node: &Node) -> Result<u64> {
 /// let node = document("3.14159").unwrap();
 /// assert!((double(&node).unwrap() - 3.14159).abs() < 0.00001);
 /// ```
-pub fn double(node: &Node) -> Result<f64> {
+pub fn double(node: &LazyParseNode) -> Result<f64> {
     let content = node.raw().trim();
 
     content.parse::<f64>().map_err(|e| {
@@ -400,7 +400,7 @@ mod tests {
             name: Alice
         }
     }"#;
-        let root = Node::new(source, Span::new(0, source.len()));
+        let root = LazyParseNode::new(source, Span::new(0, source.len()));
         let tbl = table(&root).expect("failed to parse table");
         let person = tbl.get("person").expect("person key not found");
 
@@ -417,35 +417,35 @@ mod tests {
     #[test]
     fn text_unquoted() {
         let source = "hello";
-        let node = Node::new(source, Span::new(0, 5));
+        let node = LazyParseNode::new(source, Span::new(0, 5));
         assert_eq!(text(&node).unwrap(), "hello");
     }
 
     #[test]
     fn text_quoted() {
         let source = r#""hello world""#;
-        let node = Node::new(source, Span::new(0, source.len()));
+        let node = LazyParseNode::new(source, Span::new(0, source.len()));
         assert_eq!(text(&node).unwrap(), "hello world");
     }
 
     #[test]
     fn text_with_escapes() {
         let source = r#""hello\nworld""#;
-        let node = Node::new(source, Span::new(0, source.len()));
+        let node = LazyParseNode::new(source, Span::new(0, source.len()));
         assert_eq!(text(&node).unwrap(), "hello\nworld");
     }
 
     #[test]
     fn parse_uint64() {
         let source = "42";
-        let node = Node::new(source, Span::new(0, 2));
+        let node = LazyParseNode::new(source, Span::new(0, 2));
         assert_eq!(uint64(&node).unwrap(), 42);
     }
 
     #[test]
     fn parse_double() {
         let source = "3.14";
-        let node = Node::new(source, Span::new(0, 4));
+        let node = LazyParseNode::new(source, Span::new(0, 4));
         assert!((double(&node).unwrap() - 3.14).abs() < 0.0001);
     }
 }
