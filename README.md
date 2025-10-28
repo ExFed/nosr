@@ -16,11 +16,11 @@ as flexible it is, doesn't completely solve every imaginable use case. Some
 people really want extended types. Others want functions and metaprogramming
 support. Clearly JSON just isn't good enough.
 
-Well, if you're one of those people, *NOS&#383;* probably won't help you, because
-it has fewer types than JSON, and it definitely doesn't give you any fancy
-functions or metaprogramming support. But it gives you access to a dead-simple
-tree structure that you, the programmer, get to interpret all on your own. Don't
-expect any special formatting out of *NOS&#383;* except a tree.
+Well, if you're one of those people, *NOS&#383;* probably won't help you,
+because it has fewer types than JSON, and it definitely doesn't give you any
+fancy functions or metaprogramming support. But it gives you access to a
+dead-simple tree structure that you, the programmer, get to interpret all on
+your own. Don't expect any special formatting out of *NOS&#383;* except a tree.
 
 But wait! There's more! The "parsing" bits are actually built into the API!
 Sometimes you really absolutely need a 64-bit unsigned integer instead of a
@@ -92,10 +92,11 @@ parser.
 
 ### The API
 
-As mentioned above, the point of *NOS&#383;* isn't to jam a bunch of sophisticated
-math into a data format. No, that's been done. Don't get me wrong, languages
-like [Dhall](https://dhall-lang.org/) and [CUE](https://cuelang.org/) are wicked
-awesome and deserve attention, but that's not the goal of *NOS&#383;*.
+As mentioned above, the point of *NOS&#383;* isn't to jam a bunch of
+sophisticated math into a data format. No, that's been done. Don't get me wrong,
+languages like [Dhall](https://dhall-lang.org/) and [CUE](https://cuelang.org/)
+are wicked awesome and deserve attention, but that's not the goal of
+*NOS&#383;*.
 
 Instead, the serialized format simply encodes a tree structure. The rest of the
 heavy lifting comes from the API, which defines "types" in terms of function
@@ -103,67 +104,44 @@ calls. In the event you only need a few values within a document, this should
 reduce the time spent parsing, as it means your program will only parse the
 sections that it absolutely needs, and no more.
 
-Of course, you could just argue *NOS&#383;* is little more than a lexical analyzer
-and a silly name. You'd be mostly right.
+Of course, you could just argue *NOS&#383;* is little more than a lexical
+analyzer and a silly name. You'd be mostly right.
 
-#### Operations
+### Data Types
 
-Let's define a few basic operation signatures/semantics:
-
-* `document(filename: string): result<nosr_node>`
-
-  Parses the root node of a document.
-
-* `table(node: nosr_node): result<map<string, nosr_node>>`
-
-  Parses a node as a table and returns a map of all key-value pairs.
-
-* `vector(node: nosr_node): result<seq<nosr_node>>`
-
-  Parses a node as a vector and returns a sequence of elements.
-
-* `text(node: nosr_node): result<string>`
-
-  Parses a node as a string literal.
-
-* `uint64(node: nosr_node): result<uint64>`
-
-  Parses a node as a 64-bit integer.
-
-* `double(node: nosr_node): result<double>`
-
-  Parses a node as a double.
-
-* Extensions ... maybe you can see the pattern here. As long as you can take in
-  a `nosr_node` and return a `result`, you can parse anything however you want.
-  Have fun!
-
-#### Types
-
-So what about those nebulous data types? Let's define them:
+Before we talk about all the fun and exciting stuff, there are few arcane data
+types in the sections ahead. As much as I'm a fan of mystery, it doesn't belong
+in software specifications. So let's dispel that mystery with some definitions:
 
 * `result<T>`
 
   A result type. Expresses "success" or "error" conditions. Depending upon
-  programming paradigm, may be a monad, a union, an object ... anything that
+  implementation it may be a monad, a union, an object ... anything that
   communicates to the programmer whether and where a parse failure occurred.
 
 * `map<K, V>`
 
-  A mapping from some key type to some value type. Depending upon paradigm and
+  A mapping from some key type to some value type. Depending upon
   implementation, this could be a hashmap, b-tree, or any other structure that
   associates keys to values.
 
 * `seq<T>`
 
   Any type that is able to represent a sequence of values. Depending upon
-  programming paradigm and implementation, this may be a vector, array, or
-  linked list.
+  implementation, this may be a vector, array, or linked list.
 
-* `nosr_node`
+* `parse_node`
 
-  A partially-parsed node in the *NOS&#383;* tree. Represents a substring of the
+  A partially-parsed node in a *NOS&#383;* tree. Represents a substring of the
   document (e.g.: source, position, and length).
+
+<!-- TODO: DRAFT
+* `builder_node`
+
+  A node in a partially-built *NOS&#383;* tree. Represents an abstract in-memory
+  structure (e.g.: table, vector, or scalar) and the relation to its parent
+  (i.e. forming a *parent-pointer* tree).
+ -->
 
 * `string`
 
@@ -174,6 +152,42 @@ So what about those nebulous data types? Let's define them:
 
   A 64-bit unsigned integer. Again, this is just a semantic placeholder. Not all
   languages (\*cough\**Java*\*cough\*) directly support this primitive.
+
+#### Parse Operations
+
+Let's define a few basic parsing operation signatures/semantics:
+
+* `parse_document(filename: string): result<parse_node>`
+
+  Parses the root node of a document.
+
+* `parse_table(node: parse_node): result<map<string, parse_node>>`
+
+  Parses a node as a table and returns a map of all key-value pairs.
+
+* `parse_vector(node: parse_node): result<seq<parse_node>>`
+
+  Parses a node as a vector and returns a sequence of elements.
+
+* `parse_text(node: parse_node): result<string>`
+
+  Parses a node as a string literal.
+
+* `parse_uint64(node: parse_node): result<uint64>`
+
+  Parses a node as a 64-bit integer.
+
+* `parse_double(node: parse_node): result<double>`
+
+  Parses a node as a double.
+
+* Extensions ... maybe you can see the pattern here. As long as you can take in
+  a `parse_node` and return a `result`, you can parse anything however you want.
+  Have fun!
+
+#### Builder Operations
+
+<!-- TODO ... design the builder -->
 
 ## Examples
 
