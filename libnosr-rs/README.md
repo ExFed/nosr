@@ -1,12 +1,18 @@
 # libnosr-rs
 
-A reference implementation of the **Nosr Object Spec Representation** parser in Rust.
+A reference implementation of the **Nosr Object Spec Representation** parser in
+Rust.
 
 ## Overview
 
-Nosr is a minimal data serialization format that parses into a tree structure consisting of tables (key-value pairs) and vectors (ordered sequences), with scalar values at the leaves. The format is designed to be simple and flexible, allowing you to parse values on-demand rather than converting everything upfront.
+Nosr is a minimal data serialization format that parses into a tree structure
+consisting of tables (key-value pairs) and vectors (ordered sequences), with
+scalar values at the leaves. The format is designed to be simple and flexible,
+allowing you to parse values on-demand rather than converting everything
+upfront.
 
-This crate provides a well-commented, easy-to-understand implementation that serves as a reference for the nosr specification.
+This crate provides a well-commented, easy-to-understand implementation that
+serves as a reference for the nosr specification.
 
 ## Features
 
