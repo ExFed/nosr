@@ -211,7 +211,7 @@ fn skip_delimiter(lexer: &mut Lexer) -> Result<Token> {
         let tok = lexer.next_token()?;
         match tok.kind {
             TokenKind::Comma if saw_comma => {
-                return Err(Error::new(ErrorKind::ConsecutiveDelimiters, tok.span));
+                return Err(Error::new(ErrorKind::UnexpectedChar(','), tok.span));
             }
             TokenKind::Comma => saw_comma = true,
             TokenKind::Newline => continue,
