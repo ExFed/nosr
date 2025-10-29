@@ -8,6 +8,7 @@
 //! parsing the entire document upfront.
 
 use crate::error::{ParseError, ParseErrorKind, Result};
+use crate::lexer::{Lexer, Token, TokenKind};
 use crate::span::Span;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -16,7 +17,7 @@ use std::collections::HashMap;
 ///
 /// Represents a value that may be a table, vector, or scalar.
 /// The actual parsing happens lazily when you navigate or convert the node.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Node<'a> {
     /// The complete source document (needed for extracting substrings)
     source: &'a str,
@@ -38,6 +39,16 @@ impl<'a> Node<'a> {
     /// Get the span of this node.
     pub fn span(&self) -> Span {
         self.span
+    }
+}
+
+impl<'a> std::fmt::Debug for Node<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Node")
+            .field("source", &self.source)
+            .field("span", &self.span)
+            .field("raw()", &self.raw())
+            .finish()
     }
 }
 
@@ -72,19 +83,21 @@ pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
     lexer.set_pos(node.span.start);
 
     // Consume the opening brace
-    let token = lexer.next_token()?;
-    if token.kind != TokenKind::LeftBrace {
+    let mut tok = lexer.next_token()?;
+    if tok.kind != TokenKind::LeftBrace {
         return Err(ParseError::new(ParseErrorKind::NotATable, node.span));
+    }
+
+    // Skip leading newlines
+    loop {
+        tok = lexer.next_token()?;
+        if tok.kind != TokenKind::Newline {
+            break;
+        }
     }
 
     // Parse key-value pairs
     loop {
-        // Skip delimiters (newlines, commas)
-        let mut tok = lexer.next_token()?;
-        if matches!(tok.kind, TokenKind::Newline | TokenKind::Comma) {
-            continue;
-        }
-
         // Check for end of table
         if tok.kind == TokenKind::RightBrace {
             break;
@@ -143,6 +156,9 @@ pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
         // Add to the result map
         let value_span = Span::new(value_start.start, value_end.end() - value_start.start);
         result.insert(key_text, Node::new(node.source, value_span));
+
+        // Skip delimiters, but detect consecutive commas
+        tok = skip_delimiter(&mut lexer)?;
     }
 
     Ok(result)
@@ -153,7 +169,7 @@ pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
 /// Returns the span of the closing delimiter.
 fn parse_balanced(
     _source: &str,
-    lexer: &mut crate::lexer::Lexer,
+    lexer: &mut Lexer,
     closing: crate::lexer::TokenKind,
 ) -> Result<Span> {
     use crate::lexer::TokenKind;
@@ -183,6 +199,31 @@ fn parse_balanced(
     }
 
     Ok(last_span)
+}
+
+/// Helper function to skip delimiters (commas and newlines) while detecting consecutive commas.
+///
+/// Delimiters in this context are commas (`,`) and newlines. The function skips over any combination of these.
+/// If two commas appear consecutively (even if separated by newlines), this is considered an error and will be rejected.
+///
+/// Returns the next non-delimiter token, or an error if consecutive commas are found.
+fn skip_delimiter(lexer: &mut Lexer) -> Result<Token> {
+    let mut saw_comma = false;
+
+    loop {
+        let tok = lexer.next_token()?;
+        match tok.kind {
+            TokenKind::Comma if saw_comma => {
+                return Err(ParseError::new(
+                    ParseErrorKind::UnexpectedChar(','),
+                    tok.span,
+                ));
+            }
+            TokenKind::Comma => saw_comma = true,
+            TokenKind::Newline => continue,
+            _ => return Ok(tok),
+        }
+    }
 }
 
 /// Parse a node as a vector and return all elements.
@@ -216,19 +257,21 @@ pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
     lexer.set_pos(node.span.start);
 
     // Consume the opening bracket
-    let token = lexer.next_token()?;
-    if token.kind != TokenKind::LeftBracket {
+    let mut tok = lexer.next_token()?;
+    if tok.kind != TokenKind::LeftBracket {
         return Err(ParseError::new(ParseErrorKind::NotAVector, node.span));
+    }
+
+    // Skip leading newlines
+    loop {
+        tok = lexer.next_token()?;
+        if tok.kind != TokenKind::Newline {
+            break;
+        }
     }
 
     // Parse elements
     loop {
-        // Skip delimiters (newlines, commas)
-        let mut tok = lexer.next_token()?;
-        while matches!(tok.kind, TokenKind::Newline | TokenKind::Comma) {
-            tok = lexer.next_token()?;
-        }
-
         // Check for end of vector
         if tok.kind == TokenKind::RightBracket {
             break;
@@ -268,6 +311,9 @@ pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
         // Add to the result vector
         let elem_span = Span::new(elem_start.start, elem_end.end() - elem_start.start);
         result.push(Node::new(node.source, elem_span));
+
+        // Skip delimiters, but detect consecutive commas
+        tok = skip_delimiter(&mut lexer)?;
     }
 
     Ok(result)

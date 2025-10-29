@@ -179,6 +179,90 @@ fn test_table_with_commas() {
     assert_eq!(uint64(c).expect("uint64 failed"), 3);
 }
 
+#[test]
+fn test_consecutive_commas_in_vector_rejected() {
+    let source = "[a, b,\n, c]";
+    let result = document(source);
+    assert!(result.is_ok(), "document parse should succeed");
+
+    let root = result.unwrap();
+    let v_result = vector(&root);
+    assert!(
+        v_result.is_err(),
+        "Vector with consecutive commas should fail to parse"
+    );
+}
+
+#[test]
+fn test_multiple_trailing_commas_in_vector_rejected() {
+    let source = "[a, b, c,\n,]";
+    let result = document(source);
+    assert!(result.is_ok(), "document parse should succeed");
+
+    let root = result.unwrap();
+    let v_result = vector(&root);
+    assert!(
+        v_result.is_err(),
+        "Vector with multiple trailing commas should fail to parse"
+    );
+}
+
+#[test]
+fn test_leading_comma_in_vector_rejected() {
+    let source = "[, a, b, c]";
+    let result = document(source);
+    assert!(result.is_ok(), "document parse should succeed");
+
+    let root = result.unwrap();
+    let v_result = vector(&root);
+    assert!(
+        v_result.is_err(),
+        "Vector with leading comma should fail to parse"
+    );
+}
+
+#[test]
+fn test_consecutive_commas_in_table_rejected() {
+    let source = "{ a: 1,\n, b: 2 }";
+    let result = document(source);
+    assert!(result.is_ok(), "document parse should succeed");
+
+    let root = result.unwrap();
+    let t_result = table(&root);
+    assert!(
+        t_result.is_err(),
+        "Table with consecutive commas should fail to parse"
+    );
+}
+
+#[test]
+fn test_multiple_trailing_commas_in_table_rejected() {
+    let source = "{ a: 1, b: 2,\n, }";
+    let result = document(source);
+    assert!(result.is_ok(), "document parse should succeed");
+
+    let root = result.unwrap();
+    let t_result = table(&root);
+    assert!(
+        t_result.is_err(),
+        "Table with multiple trailing commas should fail to parse"
+    );
+}
+
+#[test]
+fn test_leading_comma_in_table_rejected() {
+    let source = "{ , a: 1, b: 2 }";
+    let result = document(source);
+    assert!(result.is_ok(), "document parse should succeed");
+
+    let root = result.unwrap();
+    let t_result = table(&root);
+    assert!(
+        t_result.is_err(),
+        "Table with leading comma should fail to parse"
+    );
+}
+
 // ============================================================================
 // Pathological but Valid Test Cases
 // ============================================================================
@@ -276,20 +360,20 @@ fn test_unicode_in_keys() {
 #[test]
 fn test_extreme_whitespace() {
     let source = r#"
-    
-    
+
+
     {
-        
-        
+
+
         key1    :    value1
-        
-        
-        key2    :    value2    
-        
-        
+
+
+        key2    :    value2
+
+
     }
-    
-    
+
+
     "#;
     let root = document(source).expect("parse failed");
     let tbl = table(&root).expect("table failed");
@@ -424,15 +508,6 @@ fn test_empty_string() {
     let source = r#""""#;
     let root = document(source).expect("parse failed");
     assert_eq!(text(&root).expect("text failed"), "");
-}
-
-#[test]
-fn test_multiple_trailing_delimiters() {
-    let source = "[a, b, c,,,]";
-    let root = document(source).expect("parse failed");
-    let v = vector(&root).expect("vector failed");
-    // Should have 3 elements, trailing delimiters are ignored
-    assert_eq!(v.len(), 3);
 }
 
 #[test]

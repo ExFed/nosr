@@ -56,13 +56,15 @@ and ***vectors***. All ***scalar*** values live at the leaves of the parse tree.
 
 **Tables** are bounded by `{` and `}` characters. Contain a sequence of pairs,
 which are defined as a pair of values separated by a `:` character and delimited
-by a `,` or newline character. Tolerates a trailing delimiter. It's probably
-smart to say something like "keys are always strings", but I'm lazy, so we'll
-burn that bridge when we come to it.
+by a `,` or newline character. Tolerates a trailing delimiter (see
+[below](#a-note-about-delimiters)). It's probably smart to say something like
+"keys are always strings", but I'm lazy, so we'll burn that bridge when we come
+to it.
 
 **Vectors** are bounded by `[` and `]` characters. Sequence elements are
-delimited by a `,` or newline character. Tolerates a trailing delimiter.
-Essentially shorthand for a table with sequential unsigned integers for keys.
+delimited by a `,` or newline character. Tolerates a trailing delimiter (see
+[below](#a-note-about-delimiters)). Essentially shorthand for a table with
+sequential unsigned integers for keys.
 
 Parsers are obsessive compulsive perfectionists, so we have to define a little
 more syntax.
@@ -89,6 +91,27 @@ I'm no monster.
 parser.
 
 **Block Comments** are bounded by `#*` and `*#` tokens. Discarded by the parser.
+
+#### A Note About Delimiters
+
+No matter their stature, delimiters are finicky prima donnas. They need to be
+treated with the utmost attention, yet users seem to not care one bit about
+them. It's a delicate balance. And so, to make life easier on everyone, we must
+treat delimiters with the respect they're due, according to their kind, but no
+more:
+
+* One or more newlines after an element or pair are of enough repute to be
+  considered a "delimiter"
+* In the glorious presence of a comma (`,`), a *true* delimiter, newlines are
+  ignored like the pathetic whitespace that they are
+* Avoid an early debut (*no* delimiter, regardless of glory or repute, is
+  allowed before the first element or pair)
+* They need their moment alone on the stage (only a *single* delimiter is allowed
+  between elements or pairs)
+* Encores are best performed solo (only a *single* delimiter is allowed after
+  the last element or pair)
+* Newlines before the first element or pair are merely whitespace posers, and
+  are therefore not worthy of any consideration at all
 
 ### The API
 
