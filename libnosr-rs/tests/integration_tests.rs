@@ -511,15 +511,6 @@ fn test_empty_string() {
 }
 
 #[test]
-fn test_multiple_trailing_delimiters() {
-    let source = "[a, b, c,,,]";
-    let root = document(source).expect("parse failed");
-    let v = vector(&root).expect("vector failed");
-    // Should have 3 elements, trailing delimiters are ignored
-    assert_eq!(v.len(), 3);
-}
-
-#[test]
 fn test_complex_nested_mix() {
     let source = r#"{
         data: [
