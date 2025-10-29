@@ -1,7 +1,7 @@
 # ![NOS&#383; Object Spec representation](./assets/nosr.svg)
 
 *NOS&#383;*, also known as the *NOS&#383; Object Spec representation*. If you're
-in a hurry, you can spell it *nosr*.
+in a hurry, you can spell it *nosr*, or *NOSr*, but definitely not *NOSR*.
 
 Pronounced [/noʊˈsɝ/](assets/audio/nosr_no-sir.mp3), or
 [/noʊ sinˈjɔɹ/](assets/audio/nosr_no-senior.mp3)
