@@ -178,3 +178,61 @@ fn test_table_with_commas() {
     let c = tbl.get("c").expect("c not found");
     assert_eq!(uint64(c).expect("uint64 failed"), 3);
 }
+
+#[test]
+fn test_consecutive_commas_in_vector_rejected() {
+    // Multiple consecutive commas should be rejected
+    let source = "[a, b,, c]";
+    let result = document(source);
+    assert!(result.is_ok(), "document parse should succeed");
+    
+    let root = result.unwrap();
+    let v_result = vector(&root);
+    assert!(
+        v_result.is_err(),
+        "Vector with consecutive commas should fail to parse"
+    );
+}
+
+#[test]
+fn test_multiple_trailing_commas_in_vector_rejected() {
+    // Multiple trailing commas should be rejected
+    let source = "[a, b, c,,,]";
+    let result = document(source);
+    assert!(result.is_ok(), "document parse should succeed");
+    
+    let root = result.unwrap();
+    let v_result = vector(&root);
+    assert!(
+        v_result.is_err(),
+        "Vector with multiple trailing commas should fail to parse"
+    );
+}
+
+#[test]
+fn test_consecutive_commas_in_table_rejected() {
+    // Multiple consecutive commas in table should be rejected
+    let source = "{ a: 1,, b: 2 }";
+    let result = document(source);
+    assert!(result.is_ok(), "document parse should succeed");
+    
+    let root = result.unwrap();
+    let t_result = table(&root);
+    assert!(
+        t_result.is_err(),
+        "Table with consecutive commas should fail to parse"
+    );
+}
+
+#[test]
+fn test_newlines_between_commas_allowed() {
+    // Newlines between commas should be allowed (not consecutive)
+    let source = "[a,\n,\nb]";
+    let root = document(source).expect("parse failed");
+    let v = vector(&root).expect("vector with newlines between commas should parse");
+    
+    assert_eq!(v.len(), 2);
+    assert_eq!(text(&v[0]).expect("text failed"), "a");
+    assert_eq!(text(&v[1]).expect("text failed"), "b");
+}
+

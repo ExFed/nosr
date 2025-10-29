@@ -79,10 +79,21 @@ pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
 
     // Parse key-value pairs
     loop {
-        // Skip delimiters (newlines, commas)
+        // Skip delimiters, but detect consecutive commas without intervening newlines
         let mut tok = lexer.next_token()?;
-        if matches!(tok.kind, TokenKind::Newline | TokenKind::Comma) {
-            continue;
+        let mut saw_comma = false;
+        while matches!(tok.kind, TokenKind::Newline | TokenKind::Comma) {
+            if tok.kind == TokenKind::Comma {
+                if saw_comma {
+                    // Multiple consecutive commas without intervening newlines or elements
+                    return Err(Error::new(ErrorKind::ConsecutiveDelimiters, tok.span));
+                }
+                saw_comma = true;
+            } else {
+                // Newline resets the comma tracking
+                saw_comma = false;
+            }
+            tok = lexer.next_token()?;
         }
 
         // Check for end of table
@@ -223,9 +234,20 @@ pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
 
     // Parse elements
     loop {
-        // Skip delimiters (newlines, commas)
+        // Skip delimiters, but detect consecutive commas without intervening newlines
         let mut tok = lexer.next_token()?;
+        let mut saw_comma = false;
         while matches!(tok.kind, TokenKind::Newline | TokenKind::Comma) {
+            if tok.kind == TokenKind::Comma {
+                if saw_comma {
+                    // Multiple consecutive commas without intervening newlines or elements
+                    return Err(Error::new(ErrorKind::ConsecutiveDelimiters, tok.span));
+                }
+                saw_comma = true;
+            } else {
+                // Newline resets the comma tracking
+                saw_comma = false;
+            }
             tok = lexer.next_token()?;
         }
 
