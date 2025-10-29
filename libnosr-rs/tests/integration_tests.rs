@@ -237,7 +237,7 @@ fn test_consecutive_commas_in_table_rejected() {
 
 #[test]
 fn test_multiple_trailing_commas_in_table_rejected() {
-    let source = "{ a: 1,\n, b: 2 }";
+    let source = "{ a: 1, b: 2,\n, }";
     let result = document(source);
     assert!(result.is_ok(), "document parse should succeed");
 
