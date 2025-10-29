@@ -56,7 +56,7 @@ pub enum ErrorKind {
     IndexOutOfBounds(usize),
     /// Failed to parse value as requested type
     ParseError(String),
-    /// Multiple consecutive commas without intervening elements
+    /// Multiple consecutive commas
     ConsecutiveDelimiters,
 }
 
@@ -81,7 +81,9 @@ impl fmt::Display for ErrorKind {
             ErrorKind::KeyNotFound(key) => write!(f, "key '{}' not found", key),
             ErrorKind::IndexOutOfBounds(idx) => write!(f, "index {} out of bounds", idx),
             ErrorKind::ParseError(msg) => write!(f, "parse error: {}", msg),
-            ErrorKind::ConsecutiveDelimiters => write!(f, "multiple consecutive commas are not allowed"),
+            ErrorKind::ConsecutiveDelimiters => {
+                write!(f, "multiple consecutive commas are not allowed")
+            }
         }
     }
 }
