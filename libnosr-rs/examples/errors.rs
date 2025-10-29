@@ -3,6 +3,8 @@
 //! This example demonstrates various error conditions and how to handle them
 //! when parsing invalid nosr documents.
 
+use std::collections::HashMap;
+
 use libnosr_rs::error::{ParseError, ParseErrorKind};
 use libnosr_rs::{Span, document, double, table, text, uint64, vector};
 
@@ -125,31 +127,27 @@ fn parse_config(source: &str) -> Result<(String, u64), ConfigError> {
     let root = document(source)?;
     let config = table(&root)?;
 
-    let server = config.get("server").ok_or_else(|| {
-        ConfigError::new(
-            ConfigErrorKind::KeyNotFound("server".to_string()),
-            root.span(),
-        )
-    })?;
+    let server = get_required(&config, "server", root.span())?;
     let server_table = table(server)?;
 
-    let host = server_table.get("host").ok_or_else(|| {
-        ConfigError::new(
-            ConfigErrorKind::KeyNotFound("host".to_string()),
-            server.span(),
-        )
-    })?;
+    let host = get_required(&server_table, "host", server.span())?;
     let host_str = text(host)?.to_string();
 
-    let port = server_table.get("port").ok_or_else(|| {
-        ConfigError::new(
-            ConfigErrorKind::KeyNotFound("port".to_string()),
-            server.span(),
-        )
-    })?;
+    let port = get_required(&server_table, "port", server.span())?;
     let port_num = uint64(port)?;
 
     Ok((host_str, port_num))
+}
+
+// Helper function to get a required key from a table, returning a KeyNotFound error if missing.
+fn get_required<'a>(
+    table: &'a HashMap<String, libnosr_rs::Node>,
+    key: &str,
+    span: libnosr_rs::Span,
+) -> Result<&'a libnosr_rs::Node<'a>, ConfigError> {
+    table
+        .get(key)
+        .ok_or_else(|| ConfigError::new(ConfigErrorKind::KeyNotFound(key.to_string()), span))
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
