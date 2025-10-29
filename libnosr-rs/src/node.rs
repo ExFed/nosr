@@ -203,6 +203,9 @@ fn parse_balanced(
 
 /// Helper function to skip delimiters (commas and newlines) while detecting consecutive commas.
 ///
+/// Delimiters in this context are commas (`,`) and newlines. The function skips over any combination of these.
+/// If two commas appear consecutively (even if separated by newlines), this is considered an error and will be rejected.
+///
 /// Returns the next non-delimiter token, or an error if consecutive commas are found.
 fn skip_delimiter(lexer: &mut Lexer) -> Result<Token> {
     let mut saw_comma = false;
