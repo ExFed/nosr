@@ -3,8 +3,8 @@
 //! This example demonstrates various error conditions and how to handle them
 //! when parsing invalid nosr documents.
 
-use libnosr_rs::error::{Error, ErrorKind};
-use libnosr_rs::{document, double, table, text, uint64, vector};
+use libnosr_rs::error::{ParseError, ParseErrorKind};
+use libnosr_rs::{Span, document, double, table, text, uint64, vector};
 
 fn main() {
     println!("=== Nosr Error Handling Examples ===\n");
@@ -97,8 +97,8 @@ fn main() {
     if let Err(e) = document(source) {
         println!("  Error occurred at position: {}", e.span.start);
         match e.kind {
-            ErrorKind::UnclosedString => println!("  Error kind: Unclosed string"),
-            ErrorKind::UnexpectedEof => println!("  Error kind: Unexpected EOF"),
+            ParseErrorKind::UnclosedString => println!("  Error kind: Unclosed string"),
+            ParseErrorKind::UnexpectedEof => println!("  Error kind: Unexpected EOF"),
             _ => println!("  Error kind: {:?}", e.kind),
         }
     }
@@ -121,24 +121,78 @@ fn main() {
     }
 }
 
-fn parse_config(source: &str) -> Result<(String, u64), Error> {
+fn parse_config(source: &str) -> Result<(String, u64), ConfigError> {
     let root = document(source)?;
     let config = table(&root)?;
 
-    let server = config
-        .get("server")
-        .ok_or_else(|| Error::new(ErrorKind::KeyNotFound("server".to_string()), root.span()))?;
+    let server = config.get("server").ok_or_else(|| {
+        ConfigError::new(
+            ConfigErrorKind::KeyNotFound("server".to_string()),
+            root.span(),
+        )
+    })?;
     let server_table = table(server)?;
 
-    let host = server_table
-        .get("host")
-        .ok_or_else(|| Error::new(ErrorKind::KeyNotFound("host".to_string()), server.span()))?;
+    let host = server_table.get("host").ok_or_else(|| {
+        ConfigError::new(
+            ConfigErrorKind::KeyNotFound("host".to_string()),
+            server.span(),
+        )
+    })?;
     let host_str = text(host)?.to_string();
 
-    let port = server_table
-        .get("port")
-        .ok_or_else(|| Error::new(ErrorKind::KeyNotFound("port".to_string()), server.span()))?;
+    let port = server_table.get("port").ok_or_else(|| {
+        ConfigError::new(
+            ConfigErrorKind::KeyNotFound("port".to_string()),
+            server.span(),
+        )
+    })?;
     let port_num = uint64(port)?;
 
     Ok((host_str, port_num))
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ConfigError {
+    /// The kind of error that occurred
+    pub kind: ConfigErrorKind,
+    /// The location in the source where the error occurred
+    pub span: Span,
+}
+
+impl ConfigError {
+    pub fn new(kind: ConfigErrorKind, span: Span) -> Self {
+        Self { kind, span }
+    }
+}
+
+impl From<ParseError> for ConfigError {
+    fn from(value: ParseError) -> Self {
+        Self::new(ConfigErrorKind::Other(value.clone()), value.span)
+    }
+}
+
+impl std::fmt::Display for ConfigError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} at position {}", self.kind, self.span.start)
+    }
+}
+
+impl std::fmt::Display for ConfigErrorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ConfigErrorKind::KeyNotFound(key) => write!(f, "key not found: {}", key),
+            ConfigErrorKind::Other(err) => write!(f, "parse error: {}", err),
+        }
+    }
+}
+
+/// The kind of error that occurred during parsing or navigation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
+enum ConfigErrorKind {
+    /// Key not found in table
+    KeyNotFound(String),
+    /// Other parse error
+    Other(ParseError),
 }
