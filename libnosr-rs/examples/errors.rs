@@ -5,8 +5,8 @@
 
 use std::collections::HashMap;
 
-use libnosr_rs::error::{ParseError, ParseErrorKind};
-use libnosr_rs::{Span, document, double, table, text, uint64, vector};
+use libnosr::error::{ParseError, ParseErrorKind};
+use libnosr::{Span, document, double, table, text, uint64, vector};
 
 fn main() {
     println!("=== Nosr Error Handling Examples ===\n");
@@ -141,10 +141,10 @@ fn parse_config(source: &str) -> Result<(String, u64), ConfigError> {
 
 // Helper function to get a required key from a table, returning a KeyNotFound error if missing.
 fn get_required<'a>(
-    table: &'a HashMap<String, libnosr_rs::Node>,
+    table: &'a HashMap<String, libnosr::Node>,
     key: &str,
-    span: libnosr_rs::Span,
-) -> Result<&'a libnosr_rs::Node<'a>, ConfigError> {
+    span: libnosr::Span,
+) -> Result<&'a libnosr::Node<'a>, ConfigError> {
     table
         .get(key)
         .ok_or_else(|| ConfigError::new(ConfigErrorKind::KeyNotFound(key.to_string()), span))

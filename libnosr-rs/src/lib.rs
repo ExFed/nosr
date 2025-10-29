@@ -10,7 +10,7 @@
 //! ## Example
 //!
 //! ```rust
-//! use libnosr_rs::{document, table, text};
+//! use libnosr::{document, table, text};
 //!
 //! let source = r#"{
 //!     name: "Alice"

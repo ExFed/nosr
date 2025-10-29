@@ -35,7 +35,7 @@ libnosr-rs = "0.1"
 ## Usage
 
 ```rust
-use libnosr_rs::{document, table, vector, text, uint64, double};
+use libnosr::{document, table, vector, text, uint64, double};
 
 // Parse a document
 let source = r#"{

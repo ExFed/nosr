@@ -1,6 +1,6 @@
 //! Basic example showing how to parse and navigate nosr documents.
 
-use libnosr_rs::{document, double, table, text, uint64, vector};
+use libnosr::{document, double, table, text, uint64, vector};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Example 1: Simple scalar

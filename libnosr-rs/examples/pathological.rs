@@ -3,7 +3,7 @@
 //! This example demonstrates edge cases that are valid according to the nosr
 //! specification but might be considered unusual or extreme in real-world usage.
 
-use libnosr_rs::{document, double, table, text, uint64, vector};
+use libnosr::{document, double, table, text, uint64, vector};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Example 1: Empty structures
@@ -62,16 +62,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Example 5: Extreme whitespace
     println!("\n=== Example 5: Extreme Whitespace ===");
     let whitespace_source = r#"
-    
+
     {
-        
+
         key1    :    value1
-        
-        
+
+
         key2    :    value2
-        
+
     }
-    
+
     "#;
     let root = document(whitespace_source)?;
     let tbl = table(&root)?;

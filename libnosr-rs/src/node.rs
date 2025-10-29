@@ -57,7 +57,7 @@ impl<'a> std::fmt::Debug for Node<'a> {
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, table, text};
+/// use libnosr::{document, table, text};
 ///
 /// let source = "{ name: Alice, age: 30 }";
 /// let root = document(source).unwrap();
@@ -231,7 +231,7 @@ fn skip_delimiter(lexer: &mut Lexer) -> Result<Token> {
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, vector, text};
+/// use libnosr::{document, vector, text};
 ///
 /// let source = "[hello, world]";
 /// let root = document(source).unwrap();
@@ -326,7 +326,7 @@ pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, text};
+/// use libnosr::{document, text};
 ///
 /// let node = document("\"hello world\"").unwrap();
 /// assert_eq!(text(&node).unwrap(), "hello world");
@@ -401,7 +401,7 @@ pub fn text<'a>(node: &Node<'a>) -> Result<Cow<'a, str>> {
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, uint64};
+/// use libnosr::{document, uint64};
 ///
 /// let node = document("12345").unwrap();
 /// assert_eq!(uint64(&node).unwrap(), 12345);
@@ -422,7 +422,7 @@ pub fn uint64(node: &Node) -> Result<u64> {
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, double};
+/// use libnosr::{document, double};
 ///
 /// let node = document("3.14159").unwrap();
 /// assert!((double(&node).unwrap() - 3.14159).abs() < 0.00001);

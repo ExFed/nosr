@@ -17,7 +17,7 @@ use crate::span::Span;
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::document;
+/// use libnosr::document;
 ///
 /// let source = "{ name: Alice }";
 /// let root = document(source).expect("failed to parse");

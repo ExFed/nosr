@@ -2,7 +2,7 @@
 //!
 //! These tests verify the parser against examples from the nosr specification.
 
-use libnosr_rs::{document, double, table, text, uint64, vector};
+use libnosr::{document, double, table, text, uint64, vector};
 
 #[test]
 fn test_simple_text() {
