@@ -12,128 +12,84 @@ fn main() {
     // Example 1: Unclosed string
     println!("Example 1: Unclosed string");
     let source = r#""this string is not closed"#;
-    match document(source) {
-        Ok(_) => println!("  Unexpectedly succeeded!"),
-        Err(e) => println!("  Error: {}", e),
-    }
+    let e = document(source).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 2: Unclosed block comment
     println!("\nExample 2: Unclosed block comment");
     let source = "#* This comment never closes";
-    match document(source) {
-        Ok(_) => println!("  Unexpectedly succeeded!"),
-        Err(e) => println!("  Error: {}", e),
-    }
+    let e = document(source).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 3: Invalid escape sequence
     println!("\nExample 3: Invalid escape sequence");
     let source = r#""Invalid \x escape""#;
-    match document(source) {
-        Ok(node) => match text(&node) {
-            Ok(_) => println!("  Unexpectedly succeeded!"),
-            Err(e) => println!("  Error: {}", e),
-        },
-        Err(e) => println!("  Parse error: {}", e),
-    }
+    let node = document(source).expect("document parsing should succeed");
+    let e = text(&node).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 4: Type mismatch - trying to parse table as vector
     println!("\nExample 4: Type mismatch (table as vector)");
     let source = "{ key: value }";
-    match document(source) {
-        Ok(node) => match vector(&node) {
-            Ok(_) => println!("  Unexpectedly succeeded!"),
-            Err(e) => println!("  Error: {}", e),
-        },
-        Err(e) => println!("  Parse error: {}", e),
-    }
+    let node = document(source).expect("document parsing should succeed");
+    let e = vector(&node).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 5: Type mismatch - trying to parse vector as table
     println!("\nExample 5: Type mismatch (vector as table)");
     let source = "[a, b, c]";
-    match document(source) {
-        Ok(node) => match table(&node) {
-            Ok(_) => println!("  Unexpectedly succeeded!"),
-            Err(e) => println!("  Error: {}", e),
-        },
-        Err(e) => println!("  Parse error: {}", e),
-    }
+    let node = document(source).expect("document parsing should succeed");
+    let e = table(&node).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 6: Type mismatch - trying to parse scalar as table
     println!("\nExample 6: Type mismatch (scalar as table)");
     let source = "just_a_scalar";
-    match document(source) {
-        Ok(node) => match table(&node) {
-            Ok(_) => println!("  Unexpectedly succeeded!"),
-            Err(e) => println!("  Error: {}", e),
-        },
-        Err(e) => println!("  Parse error: {}", e),
-    }
+    let node = document(source).expect("document parsing should succeed");
+    let e = table(&node).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 7: Invalid number format
     println!("\nExample 7: Invalid number format");
     let source = "12.34.56";
-    match document(source) {
-        Ok(node) => match double(&node) {
-            Ok(_) => println!("  Unexpectedly succeeded!"),
-            Err(e) => println!("  Error: {}", e),
-        },
-        Err(e) => println!("  Parse error: {}", e),
-    }
+    let node = document(source).expect("document parsing should succeed");
+    let e = double(&node).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 8: Parsing text as number
     println!("\nExample 8: Parsing text as number");
     let source = "not_a_number";
-    match document(source) {
-        Ok(node) => match uint64(&node) {
-            Ok(_) => println!("  Unexpectedly succeeded!"),
-            Err(e) => println!("  Error: {}", e),
-        },
-        Err(e) => println!("  Parse error: {}", e),
-    }
+    let node = document(source).expect("document parsing should succeed");
+    let e = uint64(&node).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 9: Integer overflow
     println!("\nExample 9: Integer overflow (max u64 + 1)");
     let source = "18446744073709551616";
-    match document(source) {
-        Ok(node) => match uint64(&node) {
-            Ok(_) => println!("  Unexpectedly succeeded!"),
-            Err(e) => println!("  Error: {}", e),
-        },
-        Err(e) => println!("  Parse error: {}", e),
-    }
+    let node = document(source).expect("document parsing should succeed");
+    let e = uint64(&node).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 10: Negative number as u64
     println!("\nExample 10: Negative number as u64");
     let source = "-42";
-    match document(source) {
-        Ok(node) => match uint64(&node) {
-            Ok(_) => println!("  Unexpectedly succeeded!"),
-            Err(e) => println!("  Error: {}", e),
-        },
-        Err(e) => println!("  Parse error: {}", e),
-    }
+    let node = document(source).expect("document parsing should succeed");
+    let e = uint64(&node).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 11: Unbalanced braces
     println!("\nExample 11: Unbalanced braces");
     let source = "{ key: value";
-    match document(source) {
-        Ok(node) => match table(&node) {
-            Ok(_) => println!("  Unexpectedly succeeded!"),
-            Err(e) => println!("  Error: {}", e),
-        },
-        Err(e) => println!("  Parse error: {}", e),
-    }
+    let node = document(source).expect("document parsing should succeed");
+    let e = table(&node).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 12: Unbalanced brackets
     println!("\nExample 12: Unbalanced brackets");
     let source = "[a, b, c";
-    match document(source) {
-        Ok(node) => match vector(&node) {
-            Ok(_) => println!("  Unexpectedly succeeded!"),
-            Err(e) => println!("  Error: {}", e),
-        },
-        Err(e) => println!("  Parse error: {}", e),
-    }
+    let node = document(source).expect("document parsing should succeed");
+    let e = vector(&node).unwrap_err();
+    println!("  Error: {}", e);
 
     // Example 13: Error kind inspection
     println!("\nExample 13: Inspecting error kinds");
