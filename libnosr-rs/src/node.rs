@@ -7,7 +7,7 @@
 //! This design allows efficient access to deeply nested values without
 //! parsing the entire document upfront.
 
-use crate::error::{Error, ErrorKind, Result};
+use crate::error::{ParseError, ParseErrorKind, Result};
 use crate::span::Span;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -61,7 +61,7 @@ pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
 
     // Check if this looks like a table
     if !content.starts_with('{') {
-        return Err(Error::new(ErrorKind::NotATable, node.span));
+        return Err(ParseError::new(ParseErrorKind::NotATable, node.span));
     }
 
     // Parse the table to collect all key-value pairs
@@ -74,7 +74,7 @@ pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
     // Consume the opening brace
     let token = lexer.next_token()?;
     if token.kind != TokenKind::LeftBrace {
-        return Err(Error::new(ErrorKind::NotATable, node.span));
+        return Err(ParseError::new(ParseErrorKind::NotATable, node.span));
     }
 
     // Parse key-value pairs
@@ -99,13 +99,13 @@ pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
         } else if tok.kind == TokenKind::Scalar {
             key_span.extract(node.source).to_string()
         } else {
-            return Err(Error::new(ErrorKind::ExpectedChar(':'), tok.span));
+            return Err(ParseError::new(ParseErrorKind::ExpectedChar(':'), tok.span));
         };
 
         // Expect a colon
         tok = lexer.next_token()?;
         if tok.kind != TokenKind::Colon {
-            return Err(Error::new(ErrorKind::ExpectedChar(':'), tok.span));
+            return Err(ParseError::new(ParseErrorKind::ExpectedChar(':'), tok.span));
         }
 
         // Get the value
@@ -127,8 +127,8 @@ pub fn table<'a>(node: &Node<'a>) -> Result<HashMap<String, Node<'a>>> {
                 tok.span
             }
             _ => {
-                return Err(Error::new(
-                    ErrorKind::UnexpectedChar(
+                return Err(ParseError::new(
+                    ParseErrorKind::UnexpectedChar(
                         value_start
                             .extract(node.source)
                             .chars()
@@ -176,7 +176,7 @@ fn parse_balanced(
                 }
             }
             TokenKind::Eof => {
-                return Err(Error::new(ErrorKind::UnexpectedEof, tok.span));
+                return Err(ParseError::new(ParseErrorKind::UnexpectedEof, tok.span));
             }
             _ => {}
         }
@@ -205,7 +205,7 @@ pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
 
     // Check if this looks like a vector
     if !content.starts_with('[') {
-        return Err(Error::new(ErrorKind::NotAVector, node.span));
+        return Err(ParseError::new(ParseErrorKind::NotAVector, node.span));
     }
 
     // Parse the vector to collect all elements
@@ -218,7 +218,7 @@ pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
     // Consume the opening bracket
     let token = lexer.next_token()?;
     if token.kind != TokenKind::LeftBracket {
-        return Err(Error::new(ErrorKind::NotAVector, node.span));
+        return Err(ParseError::new(ParseErrorKind::NotAVector, node.span));
     }
 
     // Parse elements
@@ -252,8 +252,8 @@ pub fn vector<'a>(node: &Node<'a>) -> Result<Vec<Node<'a>>> {
                 tok.span
             }
             _ => {
-                return Err(Error::new(
-                    ErrorKind::UnexpectedChar(
+                return Err(ParseError::new(
+                    ParseErrorKind::UnexpectedChar(
                         elem_start
                             .extract(node.source)
                             .chars()
@@ -292,13 +292,13 @@ pub fn text<'a>(node: &Node<'a>) -> Result<Cow<'a, str>> {
     let content = node.raw().trim();
 
     if content.is_empty() {
-        return Err(Error::new(ErrorKind::NotAScalar, node.span));
+        return Err(ParseError::new(ParseErrorKind::NotAScalar, node.span));
     }
 
     // Check if it's a quoted string
     if content.starts_with('"') {
         if !content.ends_with('"') || content.len() < 2 {
-            return Err(Error::new(ErrorKind::UnclosedString, node.span));
+            return Err(ParseError::new(ParseErrorKind::UnclosedString, node.span));
         }
 
         // Extract the content between quotes
@@ -326,9 +326,12 @@ pub fn text<'a>(node: &Node<'a>) -> Result<Cow<'a, str>> {
                     Some('{') => s.push('{'),
                     Some('}') => s.push('}'),
                     Some(other) => {
-                        return Err(Error::new(ErrorKind::InvalidEscape(other), node.span));
+                        return Err(ParseError::new(
+                            ParseErrorKind::InvalidEscape(other),
+                            node.span,
+                        ));
                     }
-                    None => return Err(Error::new(ErrorKind::UnexpectedEof, node.span)),
+                    None => return Err(ParseError::new(ParseErrorKind::UnexpectedEof, node.span)),
                 }
                 pos += 2; // backslash + escaped char
             } else {
@@ -361,8 +364,8 @@ pub fn uint64(node: &Node) -> Result<u64> {
     let content = node.raw().trim();
 
     content.parse::<u64>().map_err(|e| {
-        Error::new(
-            ErrorKind::ParseError(format!("failed to parse as u64: {}", e)),
+        ParseError::new(
+            ParseErrorKind::ParseError(format!("failed to parse as u64: {}", e)),
             node.span,
         )
     })
@@ -382,8 +385,8 @@ pub fn double(node: &Node) -> Result<f64> {
     let content = node.raw().trim();
 
     content.parse::<f64>().map_err(|e| {
-        Error::new(
-            ErrorKind::ParseError(format!("failed to parse as f64: {}", e)),
+        ParseError::new(
+            ParseErrorKind::ParseError(format!("failed to parse as f64: {}", e)),
             node.span,
         )
     })
