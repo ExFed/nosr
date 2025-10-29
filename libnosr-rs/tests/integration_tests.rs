@@ -254,7 +254,10 @@ fn test_all_escape_sequences() {
 fn test_unicode_text() {
     let source = r#""Hello 世界 🌍 Привет مرحبا""#;
     let root = document(source).expect("parse failed");
-    assert_eq!(text(&root).expect("text failed"), "Hello 世界 🌍 Привет مرحبا");
+    assert_eq!(
+        text(&root).expect("text failed"),
+        "Hello 世界 🌍 Привет مرحبا"
+    );
 }
 
 #[test]
@@ -262,10 +265,10 @@ fn test_unicode_in_keys() {
     let source = r#"{ 世界: hello, "🌍": world }"#;
     let root = document(source).expect("parse failed");
     let tbl = table(&root).expect("table failed");
-    
+
     let val1 = tbl.get("世界").expect("unicode key not found");
     assert_eq!(text(val1).expect("text failed"), "hello");
-    
+
     let val2 = tbl.get("🌍").expect("emoji key not found");
     assert_eq!(text(val2).expect("text failed"), "world");
 }
@@ -290,8 +293,14 @@ fn test_extreme_whitespace() {
     "#;
     let root = document(source).expect("parse failed");
     let tbl = table(&root).expect("table failed");
-    assert_eq!(text(tbl.get("key1").expect("key1 not found")).expect("text failed"), "value1");
-    assert_eq!(text(tbl.get("key2").expect("key2 not found")).expect("text failed"), "value2");
+    assert_eq!(
+        text(tbl.get("key1").expect("key1 not found")).expect("text failed"),
+        "value1"
+    );
+    assert_eq!(
+        text(tbl.get("key2").expect("key2 not found")).expect("text failed"),
+        "value2"
+    );
 }
 
 #[test]
@@ -314,7 +323,10 @@ fn test_mixed_delimiters() {
 fn test_large_integer() {
     let source = "18446744073709551615"; // Max u64
     let root = document(source).expect("parse failed");
-    assert_eq!(uint64(&root).expect("uint64 failed"), 18446744073709551615u64);
+    assert_eq!(
+        uint64(&root).expect("uint64 failed"),
+        18446744073709551615u64
+    );
 }
 
 #[test]
@@ -322,27 +334,27 @@ fn test_zero_values() {
     let source = "{ int: 0, float: 0.0 }";
     let root = document(source).expect("parse failed");
     let tbl = table(&root).expect("table failed");
-    
+
     let int_val = tbl.get("int").expect("int not found");
     assert_eq!(uint64(int_val).expect("uint64 failed"), 0);
-    
+
     let float_val = tbl.get("float").expect("float not found");
     assert!((double(float_val).expect("double failed") - 0.0).abs() < 0.00001);
 }
 
 #[test]
 fn test_negative_numbers() {
-    let source = "{ neg: -42, negfloat: -3.14 }";
+    let source = "{ neg: -42, negfloat: -3.25 }";
     let root = document(source).expect("parse failed");
     let tbl = table(&root).expect("table failed");
-    
+
     // Note: uint64 should fail on negative numbers
     let neg = tbl.get("neg").expect("neg not found");
     assert!(uint64(neg).is_err());
-    
+
     let negfloat = tbl.get("negfloat").expect("negfloat not found");
     let val = double(negfloat).expect("double failed");
-    assert!((val - (-3.14)).abs() < 0.00001);
+    assert!((val - (-3.25)).abs() < 0.00001);
 }
 
 #[test]
@@ -350,15 +362,15 @@ fn test_special_float_values() {
     let source = "{ inf: inf, neginf: -inf, nan: nan }";
     let root = document(source).expect("parse failed");
     let tbl = table(&root).expect("table failed");
-    
+
     let inf_val = tbl.get("inf").expect("inf not found");
     let inf = double(inf_val).expect("double failed");
     assert!(inf.is_infinite() && inf.is_sign_positive());
-    
+
     let neginf_val = tbl.get("neginf").expect("neginf not found");
     let neginf = double(neginf_val).expect("double failed");
     assert!(neginf.is_infinite() && neginf.is_sign_negative());
-    
+
     let nan_val = tbl.get("nan").expect("nan not found");
     let nan = double(nan_val).expect("double failed");
     assert!(nan.is_nan());
@@ -371,7 +383,7 @@ fn test_single_element_structures() {
     let v = vector(&root).expect("vector failed");
     assert_eq!(v.len(), 1);
     assert_eq!(text(&v[0]).expect("text failed"), "single");
-    
+
     let source_tbl = "{ key: value }";
     let root = document(source_tbl).expect("parse failed");
     let tbl = table(&root).expect("table failed");
@@ -388,11 +400,23 @@ fn test_quoted_keys_with_special_chars() {
     }"#;
     let root = document(source).expect("parse failed");
     let tbl = table(&root).expect("table failed");
-    
-    assert_eq!(text(tbl.get("key:with:colons").expect("key not found")).expect("text failed"), "value1");
-    assert_eq!(text(tbl.get("key[with]brackets").expect("key not found")).expect("text failed"), "value2");
-    assert_eq!(text(tbl.get("key{with}braces").expect("key not found")).expect("text failed"), "value3");
-    assert_eq!(text(tbl.get("key,with,commas").expect("key not found")).expect("text failed"), "value4");
+
+    assert_eq!(
+        text(tbl.get("key:with:colons").expect("key not found")).expect("text failed"),
+        "value1"
+    );
+    assert_eq!(
+        text(tbl.get("key[with]brackets").expect("key not found")).expect("text failed"),
+        "value2"
+    );
+    assert_eq!(
+        text(tbl.get("key{with}braces").expect("key not found")).expect("text failed"),
+        "value3"
+    );
+    assert_eq!(
+        text(tbl.get("key,with,commas").expect("key not found")).expect("text failed"),
+        "value4"
+    );
 }
 
 #[test]
@@ -426,17 +450,26 @@ fn test_complex_nested_mix() {
     }"#;
     let root = document(source).expect("parse failed");
     let tbl = table(&root).expect("table failed");
-    
+
     let data = vector(tbl.get("data").expect("data not found")).expect("vector failed");
     assert_eq!(data.len(), 3);
-    
+
     let first = table(&data[0]).expect("table failed");
-    assert_eq!(uint64(first.get("id").expect("id not found")).expect("uint64 failed"), 1);
-    assert_eq!(text(first.get("name").expect("name not found")).expect("text failed"), "first");
-    
+    assert_eq!(
+        uint64(first.get("id").expect("id not found")).expect("uint64 failed"),
+        1
+    );
+    assert_eq!(
+        text(first.get("name").expect("name not found")).expect("text failed"),
+        "first"
+    );
+
     let metadata = table(tbl.get("metadata").expect("metadata not found")).expect("table failed");
-    assert_eq!(uint64(metadata.get("count").expect("count not found")).expect("uint64 failed"), 3);
-    
+    assert_eq!(
+        uint64(metadata.get("count").expect("count not found")).expect("uint64 failed"),
+        3
+    );
+
     let tags = vector(metadata.get("tags").expect("tags not found")).expect("vector failed");
     assert_eq!(tags.len(), 3);
 }

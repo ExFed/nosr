@@ -3,8 +3,8 @@
 //! This example demonstrates various error conditions and how to handle them
 //! when parsing invalid nosr documents.
 
-use libnosr_rs::{document, double, table, text, uint64, vector};
 use libnosr_rs::error::{Error, ErrorKind};
+use libnosr_rs::{document, double, table, text, uint64, vector};
 
 fn main() {
     println!("=== Nosr Error Handling Examples ===\n");
@@ -124,18 +124,21 @@ fn main() {
 fn parse_config(source: &str) -> Result<(String, u64), Error> {
     let root = document(source)?;
     let config = table(&root)?;
-    
-    let server = config.get("server")
+
+    let server = config
+        .get("server")
         .ok_or_else(|| Error::new(ErrorKind::KeyNotFound("server".to_string()), root.span()))?;
     let server_table = table(server)?;
-    
-    let host = server_table.get("host")
+
+    let host = server_table
+        .get("host")
         .ok_or_else(|| Error::new(ErrorKind::KeyNotFound("host".to_string()), server.span()))?;
     let host_str = text(host)?.to_string();
-    
-    let port = server_table.get("port")
+
+    let port = server_table
+        .get("port")
         .ok_or_else(|| Error::new(ErrorKind::KeyNotFound("port".to_string()), server.span()))?;
     let port_num = uint64(port)?;
-    
+
     Ok((host_str, port_num))
 }

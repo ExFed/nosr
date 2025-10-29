@@ -1,5 +1,5 @@
 //! Examples of pathological but valid nosr usage.
-//! 
+//!
 //! This example demonstrates edge cases that are valid according to the nosr
 //! specification but might be considered unusual or extreme in real-world usage.
 
@@ -103,10 +103,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }"#;
     let root = document(special_keys)?;
     let tbl = table(&root)?;
-    println!("'key:with:colons' = {}", text(tbl.get("key:with:colons").unwrap())?);
-    println!("'key[with]brackets' = {}", text(tbl.get("key[with]brackets").unwrap())?);
-    println!("'key{{with}}braces' = {}", text(tbl.get("key{with}braces").unwrap())?);
-    println!("'key,with,commas' = {}", text(tbl.get("key,with,commas").unwrap())?);
+    println!(
+        "'key:with:colons' = {}",
+        text(tbl.get("key:with:colons").unwrap())?
+    );
+    println!(
+        "'key[with]brackets' = {}",
+        text(tbl.get("key[with]brackets").unwrap())?
+    );
+    println!(
+        "'key{{with}}braces' = {}",
+        text(tbl.get("key{with}braces").unwrap())?
+    );
+    println!(
+        "'key,with,commas' = {}",
+        text(tbl.get("key,with,commas").unwrap())?
+    );
 
     // Example 8: Special numeric values
     println!("\n=== Example 8: Special Numeric Values ===");
@@ -121,13 +133,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let tbl = table(&root)?;
     println!("zero = {}", uint64(tbl.get("zero").unwrap())?);
     println!("max_u64 = {}", uint64(tbl.get("max_u64").unwrap())?);
-    
+
     let inf = double(tbl.get("infinity").unwrap())?;
     println!("infinity is infinite: {}", inf.is_infinite());
-    
+
     let neg_inf = double(tbl.get("neg_infinity").unwrap())?;
-    println!("neg_infinity is negative infinite: {}", neg_inf.is_infinite() && neg_inf.is_sign_negative());
-    
+    println!(
+        "neg_infinity is negative infinite: {}",
+        neg_inf.is_infinite() && neg_inf.is_sign_negative()
+    );
+
     let nan = double(tbl.get("not_a_number").unwrap())?;
     println!("not_a_number is NaN: {}", nan.is_nan());
 
@@ -158,16 +173,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }"#;
     let root = document(complex)?;
     let tbl = table(&root)?;
-    
+
     let users = vector(tbl.get("users").unwrap())?;
     println!("Number of users: {}", users.len());
-    
+
     let first_user = table(&users[0])?;
     println!("First user: {}", text(first_user.get("name").unwrap())?);
-    
+
     let tags = vector(first_user.get("tags").unwrap())?;
     println!("First user tags: {} tags", tags.len());
-    
+
     let metadata = table(tbl.get("metadata").unwrap())?;
     let settings = table(metadata.get("settings").unwrap())?;
     println!("Theme: {}", text(settings.get("theme").unwrap())?);
@@ -185,11 +200,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let root = document(single_vec)?;
     let vec = vector(&root)?;
     println!("Single element vector: {}", text(&vec[0])?);
-    
+
     let single_table = "{ only_key: only_value }";
     let root = document(single_table)?;
     let tbl = table(&root)?;
-    println!("Single element table: {}", text(tbl.get("only_key").unwrap())?);
+    println!(
+        "Single element table: {}",
+        text(tbl.get("only_key").unwrap())?
+    );
 
     // Example 13: Deeply nested vectors
     println!("\n=== Example 13: Deeply Nested Vectors ===");
