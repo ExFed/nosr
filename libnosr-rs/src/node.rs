@@ -7,7 +7,8 @@
 //! This design allows efficient access to deeply nested values without
 //! parsing the entire document upfront.
 
-use crate::error::{Error, ErrorKind, Result};
+use crate::error::{ParseError, ParseErrorKind, Result};
+use crate::lexer::{Lexer, Token, TokenKind};
 use crate::span::Span;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -16,7 +17,7 @@ use std::collections::HashMap;
 ///
 /// Represents a value that may be a table, vector, or scalar.
 /// The actual parsing happens lazily when you navigate or convert the node.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct LazyParseNode<'a> {
     /// The complete source document (needed for extracting substrings)
     source: &'a str,
@@ -41,12 +42,22 @@ impl<'a> LazyParseNode<'a> {
     }
 }
 
+impl<'a> std::fmt::Debug for LazyParseNode<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("LazyParseNode")
+            .field("source", &self.source)
+            .field("span", &self.span)
+            .field("raw()", &self.raw())
+            .finish()
+    }
+}
+
 /// Parse a node as a table.
 ///
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, table, text};
+/// use libnosr::{document, table, text};
 ///
 /// let source = "{ name: Alice, age: 30 }";
 /// let root = document(source).unwrap();
@@ -61,7 +72,7 @@ pub fn table<'a>(node: &LazyParseNode<'a>) -> Result<HashMap<String, LazyParseNo
 
     // Check if this looks like a table
     if !content.starts_with('{') {
-        return Err(Error::new(ErrorKind::NotATable, node.span));
+        return Err(ParseError::new(ParseErrorKind::NotATable, node.span));
     }
 
     // Parse the table to collect all key-value pairs
@@ -72,19 +83,21 @@ pub fn table<'a>(node: &LazyParseNode<'a>) -> Result<HashMap<String, LazyParseNo
     lexer.set_pos(node.span.start);
 
     // Consume the opening brace
-    let token = lexer.next_token()?;
-    if token.kind != TokenKind::LeftBrace {
-        return Err(Error::new(ErrorKind::NotATable, node.span));
+    let mut tok = lexer.next_token()?;
+    if tok.kind != TokenKind::LeftBrace {
+        return Err(ParseError::new(ParseErrorKind::NotATable, node.span));
+    }
+
+    // Skip leading newlines
+    loop {
+        tok = lexer.next_token()?;
+        if tok.kind != TokenKind::Newline {
+            break;
+        }
     }
 
     // Parse key-value pairs
     loop {
-        // Skip delimiters (newlines, commas)
-        let mut tok = lexer.next_token()?;
-        if matches!(tok.kind, TokenKind::Newline | TokenKind::Comma) {
-            continue;
-        }
-
         // Check for end of table
         if tok.kind == TokenKind::RightBrace {
             break;
@@ -99,13 +112,13 @@ pub fn table<'a>(node: &LazyParseNode<'a>) -> Result<HashMap<String, LazyParseNo
         } else if tok.kind == TokenKind::Scalar {
             key_span.extract(node.source).to_string()
         } else {
-            return Err(Error::new(ErrorKind::ExpectedChar(':'), tok.span));
+            return Err(ParseError::new(ParseErrorKind::ExpectedChar(':'), tok.span));
         };
 
         // Expect a colon
         tok = lexer.next_token()?;
         if tok.kind != TokenKind::Colon {
-            return Err(Error::new(ErrorKind::ExpectedChar(':'), tok.span));
+            return Err(ParseError::new(ParseErrorKind::ExpectedChar(':'), tok.span));
         }
 
         // Get the value
@@ -127,8 +140,8 @@ pub fn table<'a>(node: &LazyParseNode<'a>) -> Result<HashMap<String, LazyParseNo
                 tok.span
             }
             _ => {
-                return Err(Error::new(
-                    ErrorKind::UnexpectedChar(
+                return Err(ParseError::new(
+                    ParseErrorKind::UnexpectedChar(
                         value_start
                             .extract(node.source)
                             .chars()
@@ -143,6 +156,9 @@ pub fn table<'a>(node: &LazyParseNode<'a>) -> Result<HashMap<String, LazyParseNo
         // Add to the result map
         let value_span = Span::new(value_start.start, value_end.end() - value_start.start);
         result.insert(key_text, LazyParseNode::new(node.source, value_span));
+
+        // Skip delimiters, but detect consecutive commas
+        tok = skip_delimiter(&mut lexer)?;
     }
 
     Ok(result)
@@ -153,7 +169,7 @@ pub fn table<'a>(node: &LazyParseNode<'a>) -> Result<HashMap<String, LazyParseNo
 /// Returns the span of the closing delimiter.
 fn parse_balanced(
     _source: &str,
-    lexer: &mut crate::lexer::Lexer,
+    lexer: &mut Lexer,
     closing: crate::lexer::TokenKind,
 ) -> Result<Span> {
     use crate::lexer::TokenKind;
@@ -176,7 +192,7 @@ fn parse_balanced(
                 }
             }
             TokenKind::Eof => {
-                return Err(Error::new(ErrorKind::UnexpectedEof, tok.span));
+                return Err(ParseError::new(ParseErrorKind::UnexpectedEof, tok.span));
             }
             _ => {}
         }
@@ -185,12 +201,37 @@ fn parse_balanced(
     Ok(last_span)
 }
 
+/// Helper function to skip delimiters (commas and newlines) while detecting consecutive commas.
+///
+/// Delimiters in this context are commas (`,`) and newlines. The function skips over any combination of these.
+/// If two commas appear consecutively (even if separated by newlines), this is considered an error and will be rejected.
+///
+/// Returns the next non-delimiter token, or an error if consecutive commas are found.
+fn skip_delimiter(lexer: &mut Lexer) -> Result<Token> {
+    let mut saw_comma = false;
+
+    loop {
+        let tok = lexer.next_token()?;
+        match tok.kind {
+            TokenKind::Comma if saw_comma => {
+                return Err(ParseError::new(
+                    ParseErrorKind::UnexpectedChar(','),
+                    tok.span,
+                ));
+            }
+            TokenKind::Comma => saw_comma = true,
+            TokenKind::Newline => continue,
+            _ => return Ok(tok),
+        }
+    }
+}
+
 /// Parse a node as a vector and return all elements.
 ///
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, vector, text};
+/// use libnosr::{document, vector, text};
 ///
 /// let source = "[hello, world]";
 /// let root = document(source).unwrap();
@@ -205,7 +246,7 @@ pub fn vector<'a>(node: &LazyParseNode<'a>) -> Result<Vec<LazyParseNode<'a>>> {
 
     // Check if this looks like a vector
     if !content.starts_with('[') {
-        return Err(Error::new(ErrorKind::NotAVector, node.span));
+        return Err(ParseError::new(ParseErrorKind::NotAVector, node.span));
     }
 
     // Parse the vector to collect all elements
@@ -216,19 +257,21 @@ pub fn vector<'a>(node: &LazyParseNode<'a>) -> Result<Vec<LazyParseNode<'a>>> {
     lexer.set_pos(node.span.start);
 
     // Consume the opening bracket
-    let token = lexer.next_token()?;
-    if token.kind != TokenKind::LeftBracket {
-        return Err(Error::new(ErrorKind::NotAVector, node.span));
+    let mut tok = lexer.next_token()?;
+    if tok.kind != TokenKind::LeftBracket {
+        return Err(ParseError::new(ParseErrorKind::NotAVector, node.span));
+    }
+
+    // Skip leading newlines
+    loop {
+        tok = lexer.next_token()?;
+        if tok.kind != TokenKind::Newline {
+            break;
+        }
     }
 
     // Parse elements
     loop {
-        // Skip delimiters (newlines, commas)
-        let mut tok = lexer.next_token()?;
-        while matches!(tok.kind, TokenKind::Newline | TokenKind::Comma) {
-            tok = lexer.next_token()?;
-        }
-
         // Check for end of vector
         if tok.kind == TokenKind::RightBracket {
             break;
@@ -252,8 +295,8 @@ pub fn vector<'a>(node: &LazyParseNode<'a>) -> Result<Vec<LazyParseNode<'a>>> {
                 tok.span
             }
             _ => {
-                return Err(Error::new(
-                    ErrorKind::UnexpectedChar(
+                return Err(ParseError::new(
+                    ParseErrorKind::UnexpectedChar(
                         elem_start
                             .extract(node.source)
                             .chars()
@@ -268,6 +311,9 @@ pub fn vector<'a>(node: &LazyParseNode<'a>) -> Result<Vec<LazyParseNode<'a>>> {
         // Add to the result vector
         let elem_span = Span::new(elem_start.start, elem_end.end() - elem_start.start);
         result.push(LazyParseNode::new(node.source, elem_span));
+
+        // Skip delimiters, but detect consecutive commas
+        tok = skip_delimiter(&mut lexer)?;
     }
 
     Ok(result)
@@ -280,7 +326,7 @@ pub fn vector<'a>(node: &LazyParseNode<'a>) -> Result<Vec<LazyParseNode<'a>>> {
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, text};
+/// use libnosr::{document, text};
 ///
 /// let node = document("\"hello world\"").unwrap();
 /// assert_eq!(text(&node).unwrap(), "hello world");
@@ -292,13 +338,13 @@ pub fn text<'a>(node: &LazyParseNode<'a>) -> Result<Cow<'a, str>> {
     let content = node.raw().trim();
 
     if content.is_empty() {
-        return Err(Error::new(ErrorKind::NotAScalar, node.span));
+        return Err(ParseError::new(ParseErrorKind::NotAScalar, node.span));
     }
 
     // Check if it's a quoted string
     if content.starts_with('"') {
         if !content.ends_with('"') || content.len() < 2 {
-            return Err(Error::new(ErrorKind::UnclosedString, node.span));
+            return Err(ParseError::new(ParseErrorKind::UnclosedString, node.span));
         }
 
         // Extract the content between quotes
@@ -326,9 +372,12 @@ pub fn text<'a>(node: &LazyParseNode<'a>) -> Result<Cow<'a, str>> {
                     Some('{') => s.push('{'),
                     Some('}') => s.push('}'),
                     Some(other) => {
-                        return Err(Error::new(ErrorKind::InvalidEscape(other), node.span));
+                        return Err(ParseError::new(
+                            ParseErrorKind::InvalidEscape(other),
+                            node.span,
+                        ));
                     }
-                    None => return Err(Error::new(ErrorKind::UnexpectedEof, node.span)),
+                    None => return Err(ParseError::new(ParseErrorKind::UnexpectedEof, node.span)),
                 }
                 pos += 2; // backslash + escaped char
             } else {
@@ -352,7 +401,7 @@ pub fn text<'a>(node: &LazyParseNode<'a>) -> Result<Cow<'a, str>> {
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, uint64};
+/// use libnosr::{document, uint64};
 ///
 /// let node = document("12345").unwrap();
 /// assert_eq!(uint64(&node).unwrap(), 12345);
@@ -361,8 +410,8 @@ pub fn uint64(node: &LazyParseNode) -> Result<u64> {
     let content = node.raw().trim();
 
     content.parse::<u64>().map_err(|e| {
-        Error::new(
-            ErrorKind::ParseError(format!("failed to parse as u64: {}", e)),
+        ParseError::new(
+            ParseErrorKind::ParseError(format!("failed to parse as u64: {}", e)),
             node.span,
         )
     })
@@ -373,7 +422,7 @@ pub fn uint64(node: &LazyParseNode) -> Result<u64> {
 /// # Example
 ///
 /// ```rust
-/// use libnosr_rs::{document, double};
+/// use libnosr::{document, double};
 ///
 /// let node = document("3.14159").unwrap();
 /// assert!((double(&node).unwrap() - 3.14159).abs() < 0.00001);
@@ -382,8 +431,8 @@ pub fn double(node: &LazyParseNode) -> Result<f64> {
     let content = node.raw().trim();
 
     content.parse::<f64>().map_err(|e| {
-        Error::new(
-            ErrorKind::ParseError(format!("failed to parse as f64: {}", e)),
+        ParseError::new(
+            ParseErrorKind::ParseError(format!("failed to parse as f64: {}", e)),
             node.span,
         )
     })
@@ -444,8 +493,8 @@ mod tests {
 
     #[test]
     fn parse_double() {
-        let source = "3.14";
+        let source = "12.5";
         let node = LazyParseNode::new(source, Span::new(0, 4));
-        assert!((double(&node).unwrap() - 3.14).abs() < 0.0001);
+        assert!((double(&node).unwrap() - 12.5).abs() < 0.0001);
     }
 }

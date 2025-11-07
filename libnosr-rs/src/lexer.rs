@@ -10,7 +10,7 @@
 //! The lexer is designed to be simple and easy to understand, serving
 //! as a reference implementation of the nosr specification.
 
-use crate::error::{Error, ErrorKind, Result};
+use crate::error::{ParseError, ParseErrorKind, Result};
 use crate::span::Span;
 
 /// A token produced by the lexer.
@@ -131,8 +131,8 @@ impl<'a> Lexer<'a> {
         loop {
             match self.peek() {
                 None => {
-                    return Err(Error::new(
-                        ErrorKind::UnclosedComment,
+                    return Err(ParseError::new(
+                        ParseErrorKind::UnclosedComment,
                         Span::new(start, self.pos - start),
                     ));
                 }
@@ -163,8 +163,8 @@ impl<'a> Lexer<'a> {
         loop {
             match self.peek() {
                 None => {
-                    return Err(Error::new(
-                        ErrorKind::UnclosedString,
+                    return Err(ParseError::new(
+                        ParseErrorKind::UnclosedString,
                         Span::new(start, self.pos - start),
                     ));
                 }
@@ -177,8 +177,8 @@ impl<'a> Lexer<'a> {
                     self.consume();
                     // Consume the escaped character (validation happens in text())
                     if self.consume().is_none() {
-                        return Err(Error::new(
-                            ErrorKind::UnclosedString,
+                        return Err(ParseError::new(
+                            ParseErrorKind::UnclosedString,
                             Span::new(start, self.pos - start),
                         ));
                     }
@@ -372,8 +372,8 @@ mod tests {
         let result = lexer.next_token();
         assert!(matches!(
             result,
-            Err(Error {
-                kind: ErrorKind::UnclosedComment,
+            Err(ParseError {
+                kind: ParseErrorKind::UnclosedComment,
                 ..
             })
         ));

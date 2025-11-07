@@ -10,7 +10,7 @@
 //! ## Example
 //!
 //! ```rust
-//! use libnosr_rs::{document, table, text};
+//! use libnosr::{document, table, text};
 //!
 //! let source = r#"{
 //!     name: "Alice"
@@ -40,7 +40,7 @@ pub mod parser;
 pub mod span;
 
 // Re-export the main API types and functions
-pub use error::{Error, Result};
+pub use error::{ParseError, Result};
 pub use node::LazyParseNode;
 pub use span::Span;
 
